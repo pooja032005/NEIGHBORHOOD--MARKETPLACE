@@ -1,0 +1,371 @@
+/* ===========================
+   PAYMENT PAGE STYLES
+   =========================== */
+
+.payment-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 40px 20px;
+  font-family: "Poppins", sans-serif;
+}
+
+.payment-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.payment-header {
+  grid-column: 1 / -1;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.payment-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 10px 0;
+}
+
+.payment-header p {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+}
+
+/* ===== PAYMENT OPTIONS ===== */
+.payment-options {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.payment-options h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 25px 0;
+}
+
+.payment-option {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  margin-bottom: 15px;
+  border: 2px solid #eee;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.payment-option:hover {
+  border-color: #667eea;
+  background: #f8f9ff;
+}
+
+.payment-option input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #667eea;
+}
+
+.payment-option input[type="radio"]:checked + .option-content {
+  color: #667eea;
+}
+
+.option-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+}
+
+.option-icon {
+  font-size: 32px;
+}
+
+.option-text h4 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 5px 0;
+}
+
+.option-text p {
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+}
+
+.payment-option input[type="radio"]:checked ~ .option-content h4,
+.payment-option input[type="radio"]:checked ~ .option-content p {
+  color: #667eea;
+}
+
+/* ===== ORDER SUMMARY ===== */
+.order-summary-sticky {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+}
+
+.order-summary-sticky h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 15px 0;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #eee;
+}
+
+.address-display {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.address-display p {
+  font-size: 13px;
+  color: #555;
+  margin: 5px 0;
+  line-height: 1.5;
+}
+
+.payment-method-display {
+  margin-bottom: 20px;
+}
+
+.payment-method-display h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 10px 0;
+  border: none;
+  padding: 0;
+}
+
+.selected-method {
+  font-size: 14px;
+  color: #667eea;
+  font-weight: 600;
+  background: #f0f4ff;
+  padding: 10px;
+  border-radius: 8px;
+  margin: 0;
+}
+
+.order-total {
+  background: #f0f4ff;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.total-label {
+  font-size: 13px;
+  color: #666;
+  margin: 0 0 8px 0;
+}
+
+.total-amount {
+  font-size: 32px;
+  font-weight: 700;
+  color: #667eea;
+  margin: 0 0 8px 0;
+}
+
+.note {
+  font-size: 12px;
+  color: #999;
+  margin: 0;
+  font-style: italic;
+}
+
+/* ===== BUTTONS ===== */
+.btn-confirm-order,
+.btn-edit-address {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Poppins", sans-serif;
+  margin-bottom: 10px;
+}
+
+.btn-confirm-order {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+.btn-confirm-order:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+}
+
+.btn-confirm-order:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-edit-address {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.btn-edit-address:hover {
+  background: #e0e0e0;
+}
+
+/* ===== PAYMENT INFO ===== */
+.payment-info {
+  grid-column: 1 / -1;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 25px;
+  border-radius: 15px;
+  margin-top: 20px;
+}
+
+.payment-info h4 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 15px 0;
+}
+
+.payment-info ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 10px;
+}
+
+.payment-info li {
+  font-size: 13px;
+  color: #555;
+  padding-left: 25px;
+  position: relative;
+}
+
+.payment-info li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #667eea;
+  font-weight: 700;
+}
+
+/* ===== ERROR ===== */
+.error-message {
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  text-align: center;
+}
+
+.error-message p {
+  font-size: 16px;
+  color: #e74c3c;
+  margin: 0 0 20px 0;
+}
+
+.error-message button {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.error-message button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .payment-wrapper {
+    grid-template-columns: 1fr;
+  }
+
+  .order-summary-sticky {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .payment-container {
+    padding: 25px 15px;
+  }
+
+  .payment-header h1 {
+    font-size: 24px;
+  }
+
+  .payment-options {
+    padding: 20px;
+  }
+
+  .order-summary-sticky {
+    padding: 20px;
+  }
+
+  .payment-info ul {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .payment-container {
+    padding: 20px 10px;
+  }
+
+  .payment-header h1 {
+    font-size: 20px;
+  }
+
+  .payment-header p {
+    font-size: 13px;
+  }
+
+  .payment-option {
+    padding: 15px;
+    margin-bottom: 12px;
+  }
+
+  .option-icon {
+    font-size: 24px;
+  }
+
+  .option-text h4 {
+    font-size: 14px;
+  }
+
+  .option-text p {
+    font-size: 12px;
+  }
+
+  .total-amount {
+    font-size: 24px;
+  }
+}

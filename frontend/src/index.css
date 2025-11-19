@@ -1,0 +1,41 @@
+/* Global CSS file */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: #fff;
+}
+
+/* Theme variables */
+:root{
+  --bg: #ffffff;
+  --text: #111827;
+  --muted: #6b7280;
+  --primary: #6c63ff;
+}
+
+body.dark{
+  --bg: #0b1220;
+  --text: #e6eef8;
+  --muted: #9aa6bb;
+  --primary: #8b82ff;
+  background-color: #071026;
+}
+
+.theme-toggle{ background:transparent; border:none; font-size:18px; cursor:pointer; margin-left:8px }
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ⭐ Add-to-Cart Pop Animation */
+@keyframes cartPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}

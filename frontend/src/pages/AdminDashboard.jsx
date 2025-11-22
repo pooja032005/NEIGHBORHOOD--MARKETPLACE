@@ -14,6 +14,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedTab, setSelectedTab] = useState('overview');
+  const [usersList, setUsersList] = useState(null);
 
   useEffect(() => {
     // Verify user is admin
@@ -55,12 +56,28 @@ export default function AdminDashboard() {
       setCategoryStats(categoryRes.data);
       setSellerPerformance(sellerRes.data);
       setViewTrends(trendsRes.data);
+      // If users tab is active, fetch users
+      if (selectedTab === 'users') {
+        await fetchUsers();
+      }
       setError(null);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch stats');
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const headers = { Authorization: `Bearer ${token}` };
+      const res = await client.get('/users/admin/all-users', { headers });
+      setUsersList(res.data || []);
+    } catch (err) {
+      console.error('Error fetching users', err);
+      setUsersList([]);
     }
   };
 
@@ -420,7 +437,58 @@ export default function AdminDashboard() {
         >
           📊 Trends
         </button>
+        <button
+          className={`nav-btn ${selectedTab === 'users' ? 'active' : ''}`}
+          onClick={async () => { setSelectedTab('users'); await fetchUsers(); }}
+        >
+          👥 Users
+        </button>
       </div>
+      
+      {/* Users Tab */}
+      {selectedTab === 'users' && (
+        <div className="admin-section">
+          <h2>👥 All Users</h2>
+          {usersList === null ? (
+            <p>Loading users...</p>
+          ) : usersList.length === 0 ? (
+            <p>No users found.</p>
+          ) : (
+            <div className="users-table">
+              <div className="table-header">
+                <span>Name</span>
+                <span>Email</span>
+                <span>Role</span>
+                <span>Password</span>
+                <span>Actions</span>
+              </div>
+              {usersList.map((u) => (
+                <div key={u._id} className="table-row">
+                  <span>{u.name || '-'}</span>
+                  <span>{u.email || '-'}</span>
+                  <span>{u.role || '-'}</span>
+                  <span>********</span>
+                  <span>
+                    <button onClick={async () => {
+                      const newPw = prompt('Set new password for ' + (u.email || u._id) + '\nEnter new password:');
+                      if (!newPw) return;
+                      try {
+                        const token = localStorage.getItem('token');
+                        await client.post('/users/admin/set-password', { userId: u._id, newPassword: newPw }, { headers: { Authorization: `Bearer ${token}` } });
+                        alert('Password updated');
+                      } catch (err) {
+                        alert(err.response?.data?.message || 'Failed to update password');
+                      }
+                    }}>
+                      Set Password
+                    </button>
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

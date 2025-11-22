@@ -38,6 +38,9 @@ const UserSchema = new mongoose.Schema(
     // Cart & Wishlist
     cart: [CartItemSchema],
     wishlist: [WishlistItemSchema],
+    
+    // Admin controls
+    isBlocked: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

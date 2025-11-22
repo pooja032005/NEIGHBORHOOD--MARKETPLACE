@@ -8,7 +8,9 @@ const ServiceSchema = new mongoose.Schema({
   category: String,
   priceType: String,
   price: Number,
-  location: String
+  location: String,
+  isApproved: { type: Boolean, default: true }, // Admin approval flag
+  createdAt: { type: Date, default: Date.now }
 });
 
 module.exports = mongoose.model("Service", ServiceSchema);

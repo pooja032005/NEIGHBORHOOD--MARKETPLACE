@@ -18,6 +18,11 @@ import ChatsPage from './pages/Chats';
 import ChatWindowPage from './pages/ChatWindowPage';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminLogin from './pages/AdminLogin';
+import ManageUsers from './pages/admin/ManageUsers';
+import ManageItems from './pages/admin/ManageItems';
+import ManageServices from './pages/admin/ManageServices';
+import AdminAnalytics from './pages/admin/AdminAnalytics';
+import AdminProtectedRoute from './components/AdminProtectedRoute';
 import Navbar from './components/Navbar';
 import Toast from './components/Toast';
 import CategoryPage from "./pages/CategoryPage";
@@ -72,8 +77,56 @@ function App() {
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Admin */}
-          <Route path="/admin" element={<AdminDashboard />} />
+          {/* Admin - Protected Routes */}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <AdminProtectedRoute>
+                <AdminDashboard />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <AdminProtectedRoute>
+                <ManageUsers />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/items"
+            element={
+              <AdminProtectedRoute>
+                <ManageItems />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/services"
+            element={
+              <AdminProtectedRoute>
+                <ManageServices />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/analytics"
+            element={
+              <AdminProtectedRoute>
+                <AdminAnalytics />
+              </AdminProtectedRoute>
+            }
+          />
+          {/* Legacy admin route */}
+          <Route
+            path="/admin"
+            element={
+              <AdminProtectedRoute>
+                <AdminDashboard />
+              </AdminProtectedRoute>
+            }
+          />
         </Routes>
       </main>
     </>

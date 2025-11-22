@@ -10,7 +10,9 @@ const ItemSchema = new mongoose.Schema({
   price: Number,
   location: String,
   status: { type: String, default: "available" },
-  isFeatured: { type: Boolean, default: false }
+  isFeatured: { type: Boolean, default: false },
+  isApproved: { type: Boolean, default: true }, // Admin approval flag
+  createdAt: { type: Date, default: Date.now }
 });
 
 module.exports = mongoose.model("Item", ItemSchema);

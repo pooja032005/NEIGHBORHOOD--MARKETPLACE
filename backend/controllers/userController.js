@@ -29,6 +29,18 @@ exports.updateProfile = async (req, res) => {
       return res.status(400).json({ message: 'No valid fields provided to update' });
     }
 
+    // Server-side phone validation
+    if (updateData.phone) {
+      const digits = updateData.phone.toString().replace(/\D/g, '');
+      if (digits.length !== 10) {
+        return res.status(400).json({ message: 'Phone must contain exactly 10 digits' });
+      }
+      if (!/^\d{10}$/.test(digits)) {
+        return res.status(400).json({ message: 'Phone must contain only digits' });
+      }
+      updateData.phone = digits; // normalize
+    }
+
     const user = await User.findByIdAndUpdate(
       req.user._id,
       updateData,

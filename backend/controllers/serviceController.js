@@ -9,6 +9,17 @@ exports.createService = async (req, res) => {
       payload.imageUrl = `/uploads/${req.file.filename}`;
     }
 
+    // Backend validation (character limits)
+    const title = (payload.title || '').toString().trim();
+    const description = (payload.description || '').toString().trim();
+    const TITLE_MAX = 70;
+    const DESCRIPTION_MAX = 3000;
+
+    if (!title) return res.status(400).json({ message: 'Title is required' });
+    if (title.length > TITLE_MAX) return res.status(400).json({ message: `Title must be at most ${TITLE_MAX} characters` });
+    if (!description) return res.status(400).json({ message: 'Description is required' });
+    if (description.length > DESCRIPTION_MAX) return res.status(400).json({ message: `Description must be at most ${DESCRIPTION_MAX} characters` });
+
     const service = await Service.create({
       ...payload,
       provider: req.user._id

@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import client from '../api/api';
 import { useNavigate } from 'react-router-dom';
 import '../styles/editprofile.css';
+import { validatePhone } from '../utils/validation';
+import debounce from '../utils/debounce';
 
 export default function EditProfile(){
   const navigate = useNavigate();
@@ -16,6 +18,8 @@ export default function EditProfile(){
     address: '',
     role: 'user'
   });
+
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -39,12 +43,25 @@ export default function EditProfile(){
     });
   }, [stored, navigate]);
 
+  const liveValidateRef = useRef();
+  useEffect(() => {
+    liveValidateRef.current = debounce((name, value) => {
+      if (name === 'phone') {
+        const res = validatePhone(value);
+        setFieldErrors(prev => ({ ...prev, phone: res.valid ? null : res.message }));
+      }
+    }, 300);
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
+    if (name === 'phone' && liveValidateRef.current) {
+      liveValidateRef.current(name, value);
+    }
   };
 
   const handleProfileUpdate = async (e) => {
@@ -52,6 +69,16 @@ export default function EditProfile(){
     setError('');
     setSuccess('');
     setLoading(true);
+
+    // Validate phone
+    const phoneCheck = validatePhone(formData.phone);
+    if (!phoneCheck.valid) {
+      setFieldErrors({ phone: phoneCheck.message });
+      setLoading(false);
+      return;
+    } else {
+      setFieldErrors(prev => ({ ...prev, phone: null }));
+    }
 
     try {
       const updateData = {
@@ -175,7 +202,9 @@ export default function EditProfile(){
                 placeholder="Your phone number"
                 value={formData.phone}
                 onChange={handleChange}
+                className={fieldErrors.phone ? 'input-error' : ''}
               />
+              {fieldErrors.phone && <div className="field-error-message">{fieldErrors.phone}</div>}
             </div>
           </section>
 

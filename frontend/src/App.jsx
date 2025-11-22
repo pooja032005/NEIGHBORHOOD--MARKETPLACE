@@ -17,6 +17,7 @@ import ChatPage from './pages/ChatPage';
 import ChatsPage from './pages/Chats';
 import ChatWindowPage from './pages/ChatWindowPage';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminLogin from './pages/AdminLogin';
 import Navbar from './components/Navbar';
 import Toast from './components/Toast';
 import CategoryPage from "./pages/CategoryPage";
@@ -68,6 +69,7 @@ function App() {
 
           {/* Auth */}
           <Route path="/login" element={<Login />} />
+          <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/register" element={<Register />} />
 
           {/* Admin */}

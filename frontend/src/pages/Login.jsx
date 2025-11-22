@@ -6,7 +6,7 @@ import '../styles/auth.css';
 export default function Login(){
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('user');
+  const [role, setRole] = useState('buyer');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -66,33 +66,20 @@ export default function Login(){
 
           <div className="form-group">
             <label>Login As</label>
-            <div className="role-selector">
-              <label className={`role-option ${role === 'user' ? 'active' : ''}`}>
-                <input 
-                  type="radio" 
-                  value="user" 
-                  checked={role === 'user'}
-                  onChange={e => setRole(e.target.value)}
-                />
-                <span className="role-icon">👤</span>
-                <span className="role-text">
-                  <strong>Buyer</strong>
-                  <small>Browse marketplace</small>
-                </span>
-              </label>
-              <label className={`role-option ${role === 'admin' ? 'active' : ''}`}>
-                <input 
-                  type="radio" 
-                  value="admin" 
-                  checked={role === 'admin'}
-                  onChange={e => setRole(e.target.value)}
-                />
-                <span className="role-icon">👑</span>
-                <span className="role-text">
-                  <strong>Seller/Admin</strong>
-                  <small>Admin dashboard</small>
-                </span>
-              </label>
+            <div className="role-columns" style={{display: 'flex', gap: '12px'}}>
+              <div className={`role-column ${role === 'buyer' ? 'active' : ''}`} onClick={() => setRole('buyer')} style={{flex:1, padding: '12px', borderRadius: '8px', border: role === 'buyer' ? '2px solid #4a90e2' : '1px solid #ddd', cursor: 'pointer'}}>
+                <div style={{fontSize: '22px'}}>👤</div>
+                <div style={{fontWeight:600}}>Buyer</div>
+                <div style={{fontSize:12, color:'#666'}}>Browse marketplace</div>
+              </div>
+              <div className={`role-column ${role === 'seller' ? 'active' : ''}`} onClick={() => setRole('seller')} style={{flex:1, padding: '12px', borderRadius: '8px', border: role === 'seller' ? '2px solid #4a90e2' : '1px solid #ddd', cursor: 'pointer'}}>
+                <div style={{fontSize: '22px'}}>🏪</div>
+                <div style={{fontWeight:600}}>Seller</div>
+                <div style={{fontSize:12, color:'#666'}}>Post & manage listings</div>
+              </div>
+            </div>
+            <div style={{marginTop:8, fontSize:12}}>
+              <Link to="/admin-login">Are you an admin? Click here</Link>
             </div>
           </div>
 

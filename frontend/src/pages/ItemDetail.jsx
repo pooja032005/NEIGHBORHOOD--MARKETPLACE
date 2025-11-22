@@ -123,6 +123,10 @@ export default function ItemDetail() {
 
   if (!item) {
     return (
+      const currentUser = (() => {
+        try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch (e) { return null; }
+      })();
+      const isBuyer = currentUser && currentUser.role === 'buyer';
       <div className="item-detail-container">
         <div className="not-found">Item not found</div>
       </div>
@@ -300,6 +304,25 @@ export default function ItemDetail() {
                   onChange={(e) => setOrderForm({...orderForm, area: e.target.value})}
                 />
               </div>
+                {isBuyer ? (
+                  <>
+                    <button
+                      className="btn-add-cart"
+                      onClick={handleAddToCart}
+                      disabled={cartLoading}
+                    >
+                      {cartLoading ? "Adding..." : "🛒 Add to Cart"}
+                    </button>
+                    <button 
+                      className="btn-buy-now" 
+                      onClick={() => setShowOrderModal(true)}
+                    >
+                      💳 Place Order
+                    </button>
+                  </>
+                ) : (
+                  <div style={{padding: '12px', color: '#a00'}}>Only buyers can purchase items. Please sign in with a buyer account.</div>
+                )}
               <div className="form-group">
                 <label>City *</label>
                 <input

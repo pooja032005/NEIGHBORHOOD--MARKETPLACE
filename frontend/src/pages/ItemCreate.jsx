@@ -1,8 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import client from "../api/api";
+import { validateTitle, validateDescription } from "../utils/validation";
 import { useNavigate } from "react-router-dom";
+import debounce from "../utils/debounce";
 
 export default function ItemCreate() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || 'null');
+      if (!user || user.role !== 'seller') {
+        // Only sellers can create items
+        alert('Access denied: only sellers can create items.');
+        navigate('/');
+      }
+    } catch (err) {
+      navigate('/login');
+    }
+  }, []);
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -12,11 +27,35 @@ export default function ItemCreate() {
     price: "",
     location: "",
   });
+  const [errors, setErrors] = useState({});
 
-  const navigate = useNavigate();
+  const liveValidateRef = useRef();
+
+  useEffect(() => {
+    liveValidateRef.current = debounce((key, value) => {
+      const nextErrors = {};
+      if (key === 'title') {
+        const res = validateTitle(value);
+        if (!res.valid) nextErrors.title = res.message; else nextErrors.title = null;
+      }
+      if (key === 'description') {
+        const res = validateDescription(value);
+        if (!res.valid) nextErrors.description = res.message; else nextErrors.description = null;
+      }
+      setErrors(prev => ({ ...prev, ...nextErrors }));
+    }, 400);
+  }, []);
 
   const submit = async (e) => {
     e.preventDefault();
+    // Client-side validation
+    const titleCheck = validateTitle(form.title);
+    const descCheck = validateDescription(form.description);
+    const newErrors = {};
+    if (!titleCheck.valid) newErrors.title = titleCheck.message;
+    if (!descCheck.valid) newErrors.description = descCheck.message;
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length) return;
 
     try {
       const res = await client.post(
@@ -95,31 +134,49 @@ export default function ItemCreate() {
             </label>
 
             {type === "textarea" ? (
-              <textarea
-                value={form[key]}
-                onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  borderRadius: "8px",
-                  border: "1px solid #bbb",
-                  fontSize: "14px",
-                  resize: "vertical",
-                }}
-              />
+              <>
+                <textarea
+                  value={form[key]}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setForm({ ...form, [key]: v });
+                    if (liveValidateRef.current) liveValidateRef.current(key, v);
+                  }}
+                  className={errors[key] ? 'input-error' : ''}
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    borderRadius: "8px",
+                    border: "1px solid #bbb",
+                    fontSize: "14px",
+                    resize: "vertical",
+                  }}
+                />
+                {errors[key] && <div className="field-error-message">{errors[key]}</div>}
+              </>
             ) : (
-              <input
-                type={type || "text"}
-                value={form[key]}
-                onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  borderRadius: "8px",
-                  border: "1px solid #bbb",
-                  fontSize: "14px",
-                }}
-              />
+              <>
+                <input
+                  type={type || "text"}
+                  value={form[key]}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setForm({ ...form, [key]: v });
+                    if (key === 'title' || key === 'description') {
+                      if (liveValidateRef.current) liveValidateRef.current(key, v);
+                    }
+                  }}
+                  className={errors[key] ? 'input-error' : ''}
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    borderRadius: "8px",
+                    border: "1px solid #bbb",
+                    fontSize: "14px",
+                  }}
+                />
+                {errors[key] && <div className="field-error-message">{errors[key]}</div>}
+              </>
             )}
           </div>
         ))}

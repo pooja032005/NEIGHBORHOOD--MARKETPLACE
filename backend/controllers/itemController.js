@@ -4,6 +4,17 @@ const Item = require("../models/Item");
 // CREATE ITEM
 exports.createItem = async (req, res) => {
   try {
+    // Backend validation
+    const title = (req.body.title || '').toString().trim();
+    const description = (req.body.description || '').toString().trim();
+    const TITLE_MAX = 70; // characters
+    const DESCRIPTION_MAX = 3000; // characters
+
+    if (!title) return res.status(400).json({ message: 'Title is required' });
+    if (title.length > TITLE_MAX) return res.status(400).json({ message: `Title must be at most ${TITLE_MAX} characters` });
+    if (!description) return res.status(400).json({ message: 'Description is required' });
+    if (description.length > DESCRIPTION_MAX) return res.status(400).json({ message: `Description must be at most ${DESCRIPTION_MAX} characters` });
+
     const item = await Item.create({
       ...req.body,
       owner: req.user._id

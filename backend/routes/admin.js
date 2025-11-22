@@ -1,10 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const adminController = require("../controllers/adminController");
-const { authMiddleware } = require("../utils/authMiddleware");
+const { auth } = require("../utils/authMiddleware");
 
-// All admin routes require authentication
-router.use(authMiddleware);
+// Track a view (can be called without auth by frontend)
+router.post("/track-view", adminController.trackView);
+
+// All remaining admin routes require authentication
+router.use(auth);
 
 // Overview stats
 router.get("/overview", adminController.getOverviewStats);

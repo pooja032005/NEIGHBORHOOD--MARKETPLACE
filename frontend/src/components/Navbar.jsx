@@ -109,6 +109,7 @@ export default function Navbar() {
           <>
             <Link to="/profile" style={styles.link}>Profile</Link>
             <Link to="/chats" style={styles.link}>Chats 💬 <span style={styles.badge}>{chatUnread}</span></Link>
+            {user.role === 'admin' && <Link to="/admin" style={{...styles.link, color: '#667eea', fontWeight: '700'}}>📊 Admin</Link>}
             <ThemeToggle />
             <button onClick={logout} style={styles.logoutBtn}>Logout</button>
           </>

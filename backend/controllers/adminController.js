@@ -281,3 +281,19 @@ exports.getViewTrends = async (req, res) => {
     res.status(500).json({ message: "Error fetching view trends", error: err.message });
   }
 };
+
+// Track a product view
+exports.trackView = async (req, res) => {
+  try {
+    const { productId, productType } = req.body;
+    if (!productId || !productType) {
+      return res.status(400).json({ message: "productId and productType required" });
+    }
+
+    const { logProductView } = require("../utils/viewTracking");
+    await logProductView(productId, productType, req.user || null);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ message: "Error tracking view", error: err.message });
+  }
+};

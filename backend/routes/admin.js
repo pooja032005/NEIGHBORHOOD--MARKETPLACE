@@ -1,17 +1,27 @@
 const express = require("express");
 const router = express.Router();
-const Booking = require("../models/Booking");
+const adminController = require("../controllers/adminController");
+const { authMiddleware } = require("../utils/authMiddleware");
 
-router.get("/dashboard", async (req, res) => {
-  try {
-    const stats = {
-      totalBookings: await Booking.countDocuments(),
-      totalRevenue: await Booking.countDocuments({ status: "completed" })
-    };
-    res.json(stats);
-  } catch (err) {
-    res.status(500).json({ message: "Admin error" });
-  }
-});
+// All admin routes require authentication
+router.use(authMiddleware);
+
+// Overview stats
+router.get("/overview", adminController.getOverviewStats);
+
+// Top products
+router.get("/top-products", adminController.getTopProducts);
+
+// Viewer interest (buyers vs sellers)
+router.get("/viewer-interest", adminController.getViewerInterest);
+
+// Category-wise stats
+router.get("/category-stats", adminController.getCategoryStats);
+
+// Seller performance
+router.get("/seller-performance", adminController.getSellerPerformance);
+
+// View trends
+router.get("/view-trends", adminController.getViewTrends);
 
 module.exports = router;

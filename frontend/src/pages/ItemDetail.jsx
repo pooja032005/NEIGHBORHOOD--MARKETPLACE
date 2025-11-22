@@ -31,6 +31,11 @@ export default function ItemDetail() {
     paymentMethod: "cod"
   });
 
+  const currentUser = (() => {
+    try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch (e) { return null; }
+  })();
+  const isBuyer = currentUser && currentUser.role === 'buyer';
+
   useEffect(() => {
     fetchItemDetail();
   }, [id]);
@@ -40,6 +45,18 @@ export default function ItemDetail() {
       setLoading(true);
       const response = await client.get(`/items/${id}`);
       setItem(response.data);
+
+      // Log product view for analytics
+      try {
+        const user = JSON.parse(localStorage.getItem('user') || 'null');
+        await client.post('/admin/track-view', {
+          productId: id,
+          productType: 'Item',
+          userId: user?.id || null,
+        });
+      } catch (err) {
+        // Silently fail view tracking; don't break the page
+      }
 
       // Fetch similar items
       if (response.data.category) {
@@ -123,10 +140,6 @@ export default function ItemDetail() {
 
   if (!item) {
     return (
-      const currentUser = (() => {
-        try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch (e) { return null; }
-      })();
-      const isBuyer = currentUser && currentUser.role === 'buyer';
       <div className="item-detail-container">
         <div className="not-found">Item not found</div>
       </div>

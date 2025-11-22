@@ -1,4 +1,5 @@
 const Item = require("../models/Item");
+const { logProductView } = require("../utils/viewTracking");
 
 
 // CREATE ITEM
@@ -76,6 +77,9 @@ exports.getItemById = async (req, res) => {
     if (!item) {
       return res.status(404).json({ message: "Item not found" });
     }
+
+    // Log view in background
+    logProductView(req.params.id, 'Item', req.user || null);
 
     res.json(item);
 

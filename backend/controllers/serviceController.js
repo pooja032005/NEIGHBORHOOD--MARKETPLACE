@@ -1,4 +1,5 @@
 const Service = require("../models/Service");
+const { logProductView } = require("../utils/viewTracking");
 
 // CREATE service
 exports.createService = async (req, res) => {
@@ -69,6 +70,10 @@ exports.getServiceById = async (req, res) => {
   try {
     const service = await Service.findById(req.params.id).populate("provider", "name location email phone");
     if (!service) return res.status(404).json({ message: "Service not found" });
+
+    // Log view in background
+    logProductView(req.params.id, 'Service', req.user || null);
+
     res.json(service);
   } catch (err) {
     res.status(500).json({ message: "Error fetching service", error: err.message });

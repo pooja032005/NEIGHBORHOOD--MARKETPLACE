@@ -124,9 +124,7 @@ export default function Login(){
                 <div style={{fontSize:12, color:'#666'}}>Post & manage listings</div>
               </div>
             </div>
-            <div style={{marginTop:8, fontSize:12}}>
-              <Link to="/admin-login">Are you an admin? Click here</Link>
-            </div>
+            {/* Admin login is a separate page: access via /admin-login (not linked here) */}
           </div>
 
           <button className="btn-submit" type="submit" disabled={loading}>

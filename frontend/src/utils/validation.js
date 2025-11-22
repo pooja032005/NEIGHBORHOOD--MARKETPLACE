@@ -1,6 +1,10 @@
 // Shared validation helpers for frontend forms (character limits + phone)
-export const TITLE_MAX_CHARS = 70; // max characters for title
-export const DESCRIPTION_MAX_CHARS = 3000; // max characters for description
+export const TITLE_MAX_CHARS = 70;
+export const DESCRIPTION_MAX_CHARS = 3000;
+export const NAME_MAX_CHARS = 50;
+export const EMAIL_MAX_CHARS = 100;
+export const MOBILE_MAX_CHARS = 15;
+export const ADDRESS_MAX_CHARS = 200;
 
 export function validateTitle(title, maxChars = TITLE_MAX_CHARS) {
   if (!title || title.trim().length === 0) {
@@ -36,4 +40,67 @@ export function validatePhone(phone) {
   return { valid: true };
 }
 
-export default { validateTitle, validateDescription, validatePhone, TITLE_MAX_CHARS, DESCRIPTION_MAX_CHARS };
+export function validateName(name, maxChars = NAME_MAX_CHARS) {
+  if (!name || name.trim().length === 0) {
+    return { valid: false, message: 'Name is required.' };
+  }
+  const length = name.trim().length;
+  if (length > maxChars) {
+    return { valid: false, message: `Name must be at most ${maxChars} characters (currently ${length}).` };
+  }
+  return { valid: true };
+}
+
+export function validateEmail(email) {
+  if (!email || email.trim().length === 0) {
+    return { valid: false, message: 'Email is required.' };
+  }
+  const length = email.trim().length;
+  if (length > EMAIL_MAX_CHARS) {
+    return { valid: false, message: `Email must be at most ${EMAIL_MAX_CHARS} characters (currently ${length}).` };
+  }
+  // Basic email validation regex
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email.trim())) {
+    return { valid: false, message: 'Please enter a valid email address.' };
+  }
+  return { valid: true };
+}
+
+export function validateMobile(mobile, maxChars = MOBILE_MAX_CHARS) {
+  if (!mobile || mobile.trim().length === 0) {
+    return { valid: true }; // optional mobile
+  }
+  const length = mobile.trim().length;
+  if (length > maxChars) {
+    return { valid: false, message: `Mobile must be at most ${maxChars} characters (currently ${length}).` };
+  }
+  return { valid: true };
+}
+
+export function validateAddress(address, maxChars = ADDRESS_MAX_CHARS) {
+  if (!address || address.trim().length === 0) {
+    return { valid: true }; // optional address
+  }
+  const length = address.trim().length;
+  if (length > maxChars) {
+    return { valid: false, message: `Address must be at most ${maxChars} characters (currently ${length}).` };
+  }
+  return { valid: true };
+}
+
+export default { 
+  validateTitle, 
+  validateDescription, 
+  validatePhone,
+  validateName,
+  validateEmail,
+  validateMobile,
+  validateAddress,
+  TITLE_MAX_CHARS, 
+  DESCRIPTION_MAX_CHARS,
+  NAME_MAX_CHARS,
+  EMAIL_MAX_CHARS,
+  MOBILE_MAX_CHARS,
+  ADDRESS_MAX_CHARS
+};

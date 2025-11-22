@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import client from '../api/api';
 import { useNavigate, Link } from 'react-router-dom';
+import { validateEmail, EMAIL_MAX_CHARS } from '../utils/validation';
+import debounce from '../utils/debounce';
 import '../styles/auth.css';
 
 export default function Login(){
@@ -9,10 +11,51 @@ export default function Login(){
   const [role, setRole] = useState('buyer');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
+  const [limitError, setLimitError] = useState('');
   const navigate = useNavigate();
+  const liveValidateRef = useRef();
+
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    if (value.length > EMAIL_MAX_CHARS) {
+      setLimitError(`Email cannot exceed ${EMAIL_MAX_CHARS} characters`);
+      return;
+    }
+    setLimitError('');
+    setEmail(value);
+    if (liveValidateRef.current) liveValidateRef.current('email', value);
+  };
+
+  useEffect(() => {
+    liveValidateRef.current = debounce((field, value) => {
+      const nextErrors = {};
+      if (field === 'email') {
+        const res = validateEmail(value);
+        if (!res.valid) nextErrors.email = res.message;
+      }
+      setErrors(prev => ({ ...prev, ...nextErrors }));
+    }, 400);
+  }, []);
+
+  // Auto-close limit error after 3 seconds
+  useEffect(() => {
+    if (limitError) {
+      const timer = setTimeout(() => setLimitError(''), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [limitError]);
 
   const submit = async (e) => {
     e.preventDefault();
+    
+    // Validate email
+    const emailCheck = validateEmail(email);
+    const newErrors = {};
+    if (!emailCheck.valid) newErrors.email = emailCheck.message;
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length) return;
+
     setError('');
     setLoading(true);
     try {
@@ -40,21 +83,24 @@ export default function Login(){
         <p className="auth-subtitle">Sign in to your account</p>
         
         {error && <div className="error-message">⚠️ {error}</div>}
+        {limitError && <div className="error-message">⚠️ {limitError}</div>}
 
         <form onSubmit={submit}>
           <div className="form-group">
-            <label>Email</label>
+            <label>Email * <span className="char-limit">({email.length}/{EMAIL_MAX_CHARS})</span></label>
             <input 
-              type="email"
+              type="text"
               placeholder="you@example.com" 
               value={email} 
-              onChange={e=>setEmail(e.target.value)}
+              onChange={handleEmailChange}
+              className={errors.email ? 'input-error' : ''}
               required 
             />
+            {errors.email && <div className="field-error-message">{errors.email}</div>}
           </div>
 
           <div className="form-group">
-            <label>Password</label>
+            <label>Password *</label>
             <input 
               type="password" 
               placeholder="••••••••" 

@@ -62,6 +62,17 @@ export function CartProvider({ children }) {
       return false;
     }
 
+    // Prevent sellers from adding items to cart
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || 'null');
+      if (user && user.role === 'seller') {
+        showToast('Sellers cannot purchase items. Please use a buyer account to buy.', 'error');
+        return false;
+      }
+    } catch (e) {
+      // ignore parse errors
+    }
+
     try {
       const res = await client.post(
         "/user-actions/cart",

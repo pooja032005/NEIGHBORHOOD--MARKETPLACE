@@ -224,19 +224,25 @@ export default function ItemDetail() {
 
           {/* Sticky Action Buttons */}
           <div className="action-buttons-sticky">
-            <button
-              className="btn-add-cart"
-              onClick={handleAddToCart}
-              disabled={cartLoading}
-            >
-              {cartLoading ? "Adding..." : "🛒 Add to Cart"}
-            </button>
-            <button 
-              className="btn-buy-now" 
-              onClick={() => setShowOrderModal(true)}
-            >
-              💳 Place Order
-            </button>
+            {isBuyer ? (
+              <>
+                <button
+                  className="btn-add-cart"
+                  onClick={handleAddToCart}
+                  disabled={cartLoading}
+                >
+                  {cartLoading ? "Adding..." : "🛒 Add to Cart"}
+                </button>
+                <button 
+                  className="btn-buy-now" 
+                  onClick={() => setShowOrderModal(true)}
+                >
+                  💳 Place Order
+                </button>
+              </>
+            ) : (
+              <div style={{padding: '12px', color: '#a00'}}>Only buyers can purchase items. Please sign in with a buyer account.</div>
+            )}
             {/* Chat seller button */}
             {item.owner && (
               <ChatButton userId={item.owner._id || item.owner.id} itemId={item._id}>

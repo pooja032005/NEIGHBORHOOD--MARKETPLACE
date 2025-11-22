@@ -8,6 +8,11 @@ export default function ItemDetails(){
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useContext(CartContext);
+  const { showToast } = useContext(CartContext);
+  const currentUser = (() => {
+    try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch (e) { return null; }
+  })();
+  const isBuyer = currentUser && currentUser.role === 'buyer';
   const [item, setItem] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [toast, setToast] = useState({ show: false, message: '' });
@@ -146,20 +151,26 @@ export default function ItemDetails(){
 
             {/* Action Buttons */}
             <div className="action-buttons">
-              <button 
-                className="btn-primary"
-                onClick={handleBuyNow}
-                disabled={item.status === 'sold'}
-              >
-                ⚡ Buy Now
-              </button>
-              <button 
-                className="btn-secondary"
-                onClick={handleAddToCart}
-                disabled={addingToCart || item.status === 'sold'}
-              >
-                {addingToCart ? '⏳ Adding...' : '🛒 Add to Cart'}
-              </button>
+              {isBuyer ? (
+                <>
+                  <button 
+                    className="btn-primary"
+                    onClick={handleBuyNow}
+                    disabled={item.status === 'sold'}
+                  >
+                    ⚡ Buy Now
+                  </button>
+                  <button 
+                    className="btn-secondary"
+                    onClick={handleAddToCart}
+                    disabled={addingToCart || item.status === 'sold'}
+                  >
+                    {addingToCart ? '⏳ Adding...' : '🛒 Add to Cart'}
+                  </button>
+                </>
+              ) : (
+                <div style={{color: '#a00'}}>Only buyers can purchase items. Please login as a buyer.</div>
+              )}
             </div>
 
             {/* Contact Seller */}

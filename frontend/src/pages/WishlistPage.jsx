@@ -4,6 +4,11 @@ import "./wishlist.css";
 
 export default function WishlistPage() {
   const { wishlist, removeFromWishlist, addToCart } = useContext(CartContext);
+  const { showToast } = useContext(CartContext);
+  const currentUser = (() => {
+    try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch (e) { return null; }
+  })();
+  const isBuyer = currentUser && currentUser.role === 'buyer';
 
   return (
     <div className="wishlist-container">
@@ -21,9 +26,15 @@ export default function WishlistPage() {
               <p className="price">₹{w.item.price}</p>
 
               <div className="btn-row">
-                <button className="add-cart" onClick={() => addToCart(w.item)}>
-                  Add to Cart
-                </button>
+                {isBuyer ? (
+                  <button className="add-cart" onClick={() => addToCart(w.item)}>
+                    Add to Cart
+                  </button>
+                ) : (
+                  <button className="add-cart" onClick={() => showToast('Only buyers can add to cart. Please login as buyer.', 'error')}>
+                    Add to Cart
+                  </button>
+                )}
                 <button
                   className="remove"
                   onClick={() => removeFromWishlist(w.item._id)}

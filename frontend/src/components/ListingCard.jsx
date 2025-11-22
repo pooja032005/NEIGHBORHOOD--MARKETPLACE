@@ -8,6 +8,11 @@ export default function ListingCard({ item, onAddCart }) {
   const { addToCart } = useContext(CartContext);
   const [addingToCart, setAddingToCart] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  
+  const currentUser = (() => {
+    try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch (e) { return null; }
+  })();
+  const isBuyer = currentUser && currentUser.role === 'buyer';
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
@@ -84,19 +89,25 @@ export default function ListingCard({ item, onAddCart }) {
 
         {/* BUTTONS */}
         <div className="card-buttons">
-          <button 
-            className="btn-add-cart"
-            onClick={handleAddToCart}
-            disabled={addingToCart}
-          >
-            {addingToCart ? '⏳' : '🛒'} Cart
-          </button>
-          <button 
-            className="btn-buy-now"
-            onClick={handleBuyNow}
-          >
-            ⚡ Buy
-          </button>
+          {isBuyer ? (
+            <>
+              <button 
+                className="btn-add-cart"
+                onClick={handleAddToCart}
+                disabled={addingToCart}
+              >
+                {addingToCart ? '⏳' : '🛒'} Cart
+              </button>
+              <button 
+                className="btn-buy-now"
+                onClick={handleBuyNow}
+              >
+                ⚡ Buy
+              </button>
+            </>
+          ) : (
+            <div style={{color: '#a00', padding: '6px'}}>Only buyers can purchase. Register/login as a buyer.</div>
+          )}
         </div>
       </div>
     </div>

@@ -29,6 +29,11 @@ export default function ServiceDetail() {
   const [bookingLoading, setBookingLoading] = useState(false);
   const [orderLoading, setOrderLoading] = useState(false);
 
+  const currentUser = (() => {
+    try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch (e) { return null; }
+  })();
+  const isBuyer = currentUser && currentUser.role === 'buyer';
+
   useEffect(() => {
     fetchServiceDetail();
   }, [id]);
@@ -189,66 +194,74 @@ export default function ServiceDetail() {
             <p>{service.description || "No description available"}</p>
           </div>
 
-          {/* Booking Form */}
-          <form onSubmit={handleBookService} className="booking-form">
-            <h3>📅 Book This Service</h3>
+          {/* Booking Form - only for buyers */}
+          {isBuyer ? (
+            <form onSubmit={handleBookService} className="booking-form">
+              <h3>📅 Book This Service</h3>
 
-            <div className="form-group">
-              <label htmlFor="booking-date">Preferred Date</label>
-              <input
-                id="booking-date"
-                type="date"
-                value={bookingForm.date}
-                onChange={(e) =>
-                  setBookingForm({ ...bookingForm, date: e.target.value })
-                }
-                required
-              />
-            </div>
+              <div className="form-group">
+                <label htmlFor="booking-date">Preferred Date</label>
+                <input
+                  id="booking-date"
+                  type="date"
+                  value={bookingForm.date}
+                  onChange={(e) =>
+                    setBookingForm({ ...bookingForm, date: e.target.value })
+                  }
+                  required
+                />
+              </div>
 
-            <div className="form-group">
-              <label htmlFor="booking-time">Preferred Time</label>
-              <input
-                id="booking-time"
-                type="time"
-                value={bookingForm.time}
-                onChange={(e) =>
-                  setBookingForm({ ...bookingForm, time: e.target.value })
-                }
-                required
-              />
-            </div>
+              <div className="form-group">
+                <label htmlFor="booking-time">Preferred Time</label>
+                <input
+                  id="booking-time"
+                  type="time"
+                  value={bookingForm.time}
+                  onChange={(e) =>
+                    setBookingForm({ ...bookingForm, time: e.target.value })
+                  }
+                  required
+                />
+              </div>
 
-            <div className="form-group">
-              <label htmlFor="booking-notes">Additional Notes</label>
-              <textarea
-                id="booking-notes"
-                placeholder="Any special requirements or notes..."
-                value={bookingForm.notes}
-                onChange={(e) =>
-                  setBookingForm({ ...bookingForm, notes: e.target.value })
-                }
-                rows="3"
-              />
-            </div>
+              <div className="form-group">
+                <label htmlFor="booking-notes">Additional Notes</label>
+                <textarea
+                  id="booking-notes"
+                  placeholder="Any special requirements or notes..."
+                  value={bookingForm.notes}
+                  onChange={(e) =>
+                    setBookingForm({ ...bookingForm, notes: e.target.value })
+                  }
+                  rows="3"
+                />
+              </div>
 
-            <button
-              type="submit"
-              className="btn-book-service"
-              disabled={bookingLoading}
-            >
-              {bookingLoading ? "Booking..." : "✓ Book This Service"}
-            </button>
-          </form>
+              <button
+                type="submit"
+                className="btn-book-service"
+                disabled={bookingLoading}
+              >
+                {bookingLoading ? "Booking..." : "✓ Book This Service"}
+              </button>
+            </form>
+          ) : (
+            <div style={{padding: '12px', color: '#a00'}}>Only buyers can book services. Please sign in with a buyer account.</div>
+          )}
 
           {/* Action Buttons */}
           <div className="service-action-buttons">
-            <button
-              className="btn-place-order"
-              onClick={() => setShowOrderModal(true)}
-            >
-              💳 Place Order
-            </button>
+            {isBuyer ? (
+              <button
+                className="btn-place-order"
+                onClick={() => setShowOrderModal(true)}
+              >
+                💳 Place Order
+              </button>
+            ) : (
+              <div style={{color: '#a00', paddingRight: 12}}>Buyers only: sign in as buyer to place orders</div>
+            )}
             <button
               className="btn-contact-provider"
               onClick={handleContactProvider}

@@ -26,7 +26,12 @@ export default function CategoryPage() {
   const [rating, setRating] = useState(query.get("rating") || "");
   const [brand, setBrand] = useState(query.get("brand") || "");
   const [loading, setLoading] = useState(false);
-  const { addToCart, addToWishlist, wishlist, cart } = useContext(CartContext);
+  const { addToCart, addToWishlist, wishlist, cart, showToast } = useContext(CartContext);
+
+  const currentUser = (() => {
+    try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch (e) { return null; }
+  })();
+  const isBuyer = currentUser && currentUser.role === 'buyer';
 
   // build API query params
   const fetchItems = async () => {
@@ -118,9 +123,15 @@ export default function CategoryPage() {
                   <div className="rating">⭐ {item.rating || 4.5}</div>
                 </div>
                 <div className="actions">
-                  <button className="btn small" onClick={()=>addToCart(item)}>
-                    Add to cart
-                  </button>
+                  {isBuyer ? (
+                    <button className="btn small" onClick={()=>addToCart(item)}>
+                      Add to cart
+                    </button>
+                  ) : (
+                    <button className="btn small" onClick={() => showToast('Only buyers can add to cart. Please login as a buyer.', 'error')}>
+                      Add to cart
+                    </button>
+                  )}
                   <button className={`icon-btn ${wishlist.find(w=>w._id===item._id)?'active':''}`} onClick={()=>addToWishlist(item)}>
                     ♥
                   </button>

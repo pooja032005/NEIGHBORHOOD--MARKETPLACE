@@ -98,7 +98,7 @@ export default function Home() {
         <div className="category-grid">
           {/* Featured Admin Item - Shows first if available */}
           {!loadingFeatured && featuredItem && (
-            <Link to={`/items?category=${featuredItem.category}`} className="category-pill featured-category">
+            <Link to={`/category/${encodeURIComponent(featuredItem.category)}`} className="category-pill featured-category">
               <div className="featured-badge">✨ Featured</div>
               <span className="category-icon">{getCategoryEmoji(featuredItem.category)}</span>
               <span className="category-name">{featuredItem.category}</span>
@@ -107,32 +107,32 @@ export default function Home() {
           )}
 
           {/* Standard Categories */}
-          <Link to="/items?category=Electronics" className="category-pill">
+          <Link to="/category/Electronics" className="category-pill">
             <span className="category-icon">📱</span>
             <span className="category-name">Electronics</span>
           </Link>
 
-          <Link to="/items?category=Home Goods" className="category-pill">
+          <Link to="/category/Home%20Goods" className="category-pill">
             <span className="category-icon">🏠</span>
             <span className="category-name">Home Goods</span>
           </Link>
 
-          <Link to="/items?category=Fashion" className="category-pill">
+          <Link to="/category/Fashion" className="category-pill">
             <span className="category-icon">👗</span>
             <span className="category-name">Fashion</span>
           </Link>
 
-          <Link to="/items?category=Games" className="category-pill">
+          <Link to="/category/Games" className="category-pill">
             <span className="category-icon">🎮</span>
             <span className="category-name">Games</span>
           </Link>
 
-          <Link to="/items?category=Books" className="category-pill">
+          <Link to="/category/Books" className="category-pill">
             <span className="category-icon">📚</span>
             <span className="category-name">Books</span>
           </Link>
 
-          <Link to="/items?category=Sports" className="category-pill">
+          <Link to="/category/Sports" className="category-pill">
             <span className="category-icon">🚲</span>
             <span className="category-name">Sports</span>
           </Link>

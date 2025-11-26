@@ -17,9 +17,11 @@ exports.addToCart = async (req, res) => {
   try {
     const { itemId, qty = 1 } = req.body;
     if (!itemId) return res.status(400).json({ message: "Missing itemId" });
-    // optional: verify item exists
+    // verify item exists
     const item = await Item.findById(itemId);
     if (!item) return res.status(404).json({ message: "Item not found" });
+
+    // Item exists; allow adding to cart (basic checks only)
 
     const user = await User.findById(req.user._id);
     const existing = user.cart.find(c => c.item.equals(itemId));

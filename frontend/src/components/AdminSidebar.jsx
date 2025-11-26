@@ -62,6 +62,13 @@ export default function AdminSidebar() {
           <span className="nav-icon">📈</span>
           <span className="nav-label">Analytics</span>
         </Link>
+        <Link
+          to="/admin/stats"
+          className={`nav-item ${isActive("/admin/stats") ? "active" : ""}`}
+        >
+          <span className="nav-icon">📊</span>
+          <span className="nav-label">Quick Stats</span>
+        </Link>
       </nav>
 
       <div className="sidebar-footer">

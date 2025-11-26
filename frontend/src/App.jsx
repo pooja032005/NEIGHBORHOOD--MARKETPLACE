@@ -22,6 +22,7 @@ import ManageUsers from './pages/admin/ManageUsers';
 import ManageItems from './pages/admin/ManageItems';
 import ManageServices from './pages/admin/ManageServices';
 import AdminAnalytics from './pages/admin/AdminAnalytics';
+import AdminStats from './pages/admin/AdminStats';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
 import Navbar from './components/Navbar';
 import Toast from './components/Toast';
@@ -115,6 +116,14 @@ function App() {
             element={
               <AdminProtectedRoute>
                 <AdminAnalytics />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/stats"
+            element={
+              <AdminProtectedRoute>
+                <AdminStats />
               </AdminProtectedRoute>
             }
           />

@@ -1,5 +1,6 @@
 const Item = require("../models/Item");
 const { logProductView } = require("../utils/viewTracking");
+const { isValidTitle, isValidDescription, isValidImageUrl } = require('../utils/validation');
 
 
 // CREATE ITEM
@@ -16,6 +17,24 @@ exports.createItem = async (req, res) => {
     if (!description) return res.status(400).json({ message: 'Description is required' });
     if (description.length > DESCRIPTION_MAX) return res.status(400).json({ message: `Description must be at most ${DESCRIPTION_MAX} characters` });
 
+    // Enforce canonical categories on create
+    const ALLOWED = ['Electronics','Home Goods','Fashion','Games','Books','Sports','Others'];
+    if (req.body.category && !ALLOWED.includes(req.body.category)) {
+      return res.status(400).json({ message: `Invalid category. Allowed: ${ALLOWED.join(', ')}` });
+    }
+
+    // Basic validation: title and description already checked above with length limits
+    // Image URL is optional — no strict validation needed
+    
+    // Restore gibberish detection: reject random letter strings
+    const { isLikelyValidText } = require('../utils/validation');
+    if (!isLikelyValidText(req.body.title)) {
+      return res.status(400).json({ message: 'Title appears to be gibberish. Please enter a real product name.' });
+    }
+    if (!isLikelyValidText(req.body.description)) {
+      return res.status(400).json({ message: 'Description appears to be gibberish. Please describe your product properly.' });
+    }
+    
     const item = await Item.create({
       ...req.body,
       owner: req.user._id
@@ -43,9 +62,11 @@ exports.getItems = async (req, res) => {
       ];
     }
 
-    // Category filter
+    // Category filter - match exact category (case-insensitive)
     if (req.query.category) {
-      query.category = { $regex: req.query.category, $options: "i" };
+      // escape any regex chars in user input to avoid unexpected matches
+      const escaped = req.query.category.replace(/[-\\/\\^$*+?.()|[\]{}]/g, "\\$&");
+      query.category = { $regex: `^${escaped}$`, $options: "i" };
     }
 
     // Location filter

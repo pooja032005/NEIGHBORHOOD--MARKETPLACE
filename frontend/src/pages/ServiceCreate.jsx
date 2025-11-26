@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import client from "../api/api";
-import { validateTitle, validateDescription } from "../utils/validation";
+import { validateTitle, validateDescription, isLikelyValidText, isGibberishWord } from "../utils/validation";
 import { useNavigate } from "react-router-dom";
 import debounce from "../utils/debounce";
 
@@ -29,16 +29,33 @@ export default function ServiceCreate() {
   const [errors, setErrors] = useState({});
   const liveValidateRef = useRef();
 
+  // Calculate form validity - all required fields must pass validation
+  const isFormValid = () => {
+    if (!form.title.trim() || !form.description.trim() || !form.category.trim()) return false;
+    
+    const titleCheck = validateTitle(form.title);
+    if (!titleCheck.valid || !isLikelyValidText(form.title)) return false;
+    
+    const descCheck = validateDescription(form.description);
+    if (!descCheck.valid || !isLikelyValidText(form.description)) return false;
+    
+    return true;
+  };
+
   useEffect(() => {
     liveValidateRef.current = debounce((key, value) => {
       const nextErrors = {};
       if (key === 'title') {
         const res = validateTitle(value);
-        if (!res.valid) nextErrors.title = res.message; else nextErrors.title = null;
+        if (!res.valid) nextErrors.title = res.message;
+        else if (!isLikelyValidText(value)) nextErrors.title = 'Title looks invalid or gibberish.';
+        else nextErrors.title = null;
       }
       if (key === 'description') {
         const res = validateDescription(value);
-        if (!res.valid) nextErrors.description = res.message; else nextErrors.description = null;
+        if (!res.valid) nextErrors.description = res.message;
+        else if (!isLikelyValidText(value)) nextErrors.description = 'Description looks invalid or gibberish.';
+        else nextErrors.description = null;
       }
       setErrors(prev => ({ ...prev, ...nextErrors }));
     }, 400);
@@ -55,8 +72,15 @@ export default function ServiceCreate() {
     const newErrors = {};
     if (!titleCheck.valid) newErrors.title = titleCheck.message;
     if (!descCheck.valid) newErrors.description = descCheck.message;
+    // additional heuristics
+    if (!newErrors.title && !isLikelyValidText(form.title)) newErrors.title = 'Title looks invalid or gibberish.';
+    if (!newErrors.description && !isLikelyValidText(form.description)) newErrors.description = 'Description looks invalid or too short.';
     setErrors(newErrors);
-    if (Object.keys(newErrors).length) return;
+    if (Object.keys(newErrors).length) {
+      const errorMsg = Object.values(newErrors).join('\n');
+      alert('❌ Invalid Data:\n\n' + errorMsg);
+      return;
+    }
 
     try {
       const fd = new FormData();
@@ -78,7 +102,8 @@ export default function ServiceCreate() {
 
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || "Error creating service");
+      const msg = err.response?.data?.message || err.message || 'Error creating service';
+      alert(msg);
     }
   };
 
@@ -144,6 +169,18 @@ export default function ServiceCreate() {
                   value={form[key]}
                   onChange={(e) => {
                     const v = e.target.value;
+                    const prev = form[key] || '';
+                    const isInsert = v.length > prev.length;
+                    if (isInsert) {
+                      const words = v.split(/\s+/).filter(Boolean);
+                      const hasGib = words.some(w => isGibberishWord(w));
+                      if (hasGib) {
+                        setErrors(prevErr => ({ ...prevErr, [key]: 'Contains invalid word. Remove it to continue.' }));
+                        return;
+                      } else {
+                        setErrors(prevErr => ({ ...prevErr, [key]: null }));
+                      }
+                    }
                     setForm({ ...form, [key]: v });
                     if (liveValidateRef.current) liveValidateRef.current(key, v);
                   }}
@@ -158,6 +195,11 @@ export default function ServiceCreate() {
                   }}
                 />
                 {errors[key] && <div className="field-error-message">{errors[key]}</div>}
+                {key === 'description' && (
+                  <small style={{ color: '#666', display: 'block', marginTop: '4px' }}>
+                    {form[key].length} / 3000 characters max
+                  </small>
+                )}
               </>
             ) : (
               <>
@@ -166,12 +208,25 @@ export default function ServiceCreate() {
                   value={form[key]}
                   onChange={(e) => {
                     const v = e.target.value;
+                    const prev = form[key] || '';
+                    const isInsert = v.length > prev.length;
+                    if (isInsert && (key === 'title' || key === 'description')) {
+                      const words = v.split(/\s+/).filter(Boolean);
+                      const hasGib = words.some(w => isGibberishWord(w));
+                      if (hasGib) {
+                        setErrors(prevErr => ({ ...prevErr, [key]: 'Contains invalid word. Remove it to continue.' }));
+                        return;
+                      } else {
+                        setErrors(prevErr => ({ ...prevErr, [key]: null }));
+                      }
+                    }
                     setForm({ ...form, [key]: v });
                     if (key === 'title' || key === 'description') {
                       if (liveValidateRef.current) liveValidateRef.current(key, v);
                     }
                   }}
                   className={errors[key] ? 'input-error' : ''}
+                  maxLength={key === 'title' ? 70 : undefined}
                   style={{
                     width: "100%",
                     padding: "10px",
@@ -181,6 +236,11 @@ export default function ServiceCreate() {
                   }}
                 />
                 {errors[key] && <div className="field-error-message">{errors[key]}</div>}
+                {key === 'title' && (
+                  <small style={{ color: '#666', display: 'block', marginTop: '4px' }}>
+                    {form[key].length} / 70 characters max
+                  </small>
+                )}
               </>
             )}
           </div>
@@ -238,21 +298,32 @@ export default function ServiceCreate() {
         {/* SUBMIT BUTTON */}
         <button
           type="submit"
+          disabled={!isFormValid()}
           style={{
             width: "100%",
             padding: "12px",
-            background: "#4a90e2",
-            color: "#ffffff",
+            background: isFormValid() ? "#4a90e2" : "#ccc",
+            color: isFormValid() ? "#ffffff" : "#999",
             fontWeight: "600",
             fontSize: "16px",
             border: "none",
             borderRadius: "8px",
-            cursor: "pointer",
+            cursor: isFormValid() ? "pointer" : "not-allowed",
             marginTop: "10px",
             transition: "0.3s",
           }}
+          onMouseOver={(e) => {
+            if (isFormValid()) {
+              e.target.style.background = "#3a7dd1";
+            }
+          }}
+          onMouseOut={(e) => {
+            if (isFormValid()) {
+              e.target.style.background = "#4a90e2";
+            }
+          }}
         >
-          Create Service
+          {isFormValid() ? "Create Service" : "Complete all fields to enable"}
         </button>
       </form>
     </div>

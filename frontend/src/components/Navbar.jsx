@@ -13,16 +13,18 @@ export default function Navbar() {
   const [chatUnread, setChatUnread] = useState(0);
   const [loadingWishlist, setLoadingWishlist] = useState(false);
 
-  let user = null;
-  try {
-    const stored = localStorage.getItem("user");
-    user = stored ? JSON.parse(stored) : null;
-  } catch (e) {
-    user = null;
-  }
+  const [user, setUser] = useState(() => {
+    try {
+      const stored = localStorage.getItem("user");
+      return stored ? JSON.parse(stored) : null;
+    } catch (e) {
+      return null;
+    }
+  });
 
   // Load wishlist count when user logs in or wishlist changes
   useEffect(() => {
+    // Recompute current user from state and only run when wishlist or user state changes
     if (user && localStorage.getItem('token')) {
       loadWishlistCount();
       loadChatUnread();
@@ -64,6 +66,7 @@ export default function Navbar() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setWishlistCount(0);
+    setUser(null);
     navigate("/login");
   };
 

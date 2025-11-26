@@ -1,5 +1,6 @@
 const Service = require("../models/Service");
 const { logProductView } = require("../utils/viewTracking");
+const { isValidTitle, isValidDescription, isValidImageUrl } = require('../utils/validation');
 
 // CREATE service
 exports.createService = async (req, res) => {
@@ -20,7 +21,24 @@ exports.createService = async (req, res) => {
     if (title.length > TITLE_MAX) return res.status(400).json({ message: `Title must be at most ${TITLE_MAX} characters` });
     if (!description) return res.status(400).json({ message: 'Description is required' });
     if (description.length > DESCRIPTION_MAX) return res.status(400).json({ message: `Description must be at most ${DESCRIPTION_MAX} characters` });
+    // Enforce canonical categories on create
+    const ALLOWED = ['Electronics','Home Goods','Fashion','Games','Books','Sports','Others'];
+    if (payload.category && !ALLOWED.includes(payload.category)) {
+      return res.status(400).json({ message: `Invalid category. Allowed: ${ALLOWED.join(', ')}` });
+    }
 
+    // Basic validation: title and description already checked above with length limits
+    // Services can have optional images via file upload
+    
+    // Restore gibberish detection
+    const { isLikelyValidText } = require('../utils/validation');
+    if (!isLikelyValidText(payload.title)) {
+      return res.status(400).json({ message: 'Title appears to be gibberish. Please enter a real service name.' });
+    }
+    if (!isLikelyValidText(payload.description)) {
+      return res.status(400).json({ message: 'Description appears to be gibberish. Please describe your service properly.' });
+    }
+    
     const service = await Service.create({
       ...payload,
       provider: req.user._id
@@ -49,9 +67,10 @@ exports.getServices = async (req, res) => {
       query.location = { $regex: req.query.location, $options: "i" };
     }
 
-    // Category filter (optional)
+    // Category filter (optional) - match exact category (case-insensitive)
     if (req.query.category) {
-      query.category = { $regex: req.query.category, $options: "i" };
+      const escaped = req.query.category.replace(/[-\\/\\^$*+?.()|[\]{}]/g, "\\$&");
+      query.category = { $regex: `^${escaped}$`, $options: "i" };
     }
 
     const services = await Service.find(query)

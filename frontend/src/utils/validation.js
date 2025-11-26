@@ -28,6 +28,51 @@ export function validateDescription(description, maxChars = DESCRIPTION_MAX_CHAR
   return { valid: true };
 }
 
+// Heuristic checks to prevent gibberish/random letters being submitted
+export function isLikelyValidText(value) {
+  if (!value || typeof value !== 'string') return false;
+  const s = value.trim();
+  if (s.length < 3) return false;
+  const letters = (s.match(/[A-Za-z]/g) || []).length;
+  if (letters < 3) return false;
+  const words = s.split(/\s+/).filter(Boolean);
+  const meaningful = words.filter(w => /[A-Za-z]{2,}/.test(w));
+  if (meaningful.length === 0) return false;
+  if (letters / s.length < 0.25) return false;
+  return true;
+}
+
+// Detect single-word gibberish to block further typing when needed
+export function isGibberishWord(word) {
+  if (!word || typeof word !== 'string') return false;
+  const s = word.trim();
+  // allow short words (a, to, it, etc.)
+  if (s.length < 3) return false;
+  const letters = (s.match(/[A-Za-z]/g) || []).length;
+  // if less than 2 letters it's probably gibberish
+  if (letters < 2) return true;
+  // if alphabetic portion is too small, consider gibberish
+  if (letters / s.length < 0.25) return true;
+  // require at least one 2+ letter sequence (meaningful word part)
+  if (!/[A-Za-z]{2,}/.test(s)) return true;
+  return false;
+}
+
+export function isValidImageUrl(url) {
+  if (!url || typeof url !== 'string') return false;
+  const u = url.trim();
+  const extRegex = /\.(png|jpg|jpeg|gif|webp)$/i;
+  if (u.startsWith('/uploads/') && extRegex.test(u)) return true;
+  try {
+    const parsed = new URL(u);
+    if ((parsed.protocol === 'http:' || parsed.protocol === 'https:') && extRegex.test(parsed.pathname)) return true;
+  } catch (e) {
+    // not a full URL
+  }
+  if (u.startsWith('data:image/')) return true;
+  return false;
+}
+
 export function validatePhone(phone) {
   if (!phone) return { valid: true }; // optional phone allowed
   const digits = phone.replace(/\D/g, '');

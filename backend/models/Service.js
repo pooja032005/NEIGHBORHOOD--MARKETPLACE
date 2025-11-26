@@ -5,7 +5,19 @@ const ServiceSchema = new mongoose.Schema({
   title: String,
   description: String,
   imageUrl: String,
-  category: String,
+  category: {
+    type: String,
+    enum: [
+      'Electronics',
+      'Home Goods',
+      'Fashion',
+      'Games',
+      'Books',
+      'Sports',
+      'Others'
+    ],
+    default: 'Others'
+  },
   priceType: String,
   price: Number,
   location: String,

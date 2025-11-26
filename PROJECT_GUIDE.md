@@ -1,122 +1,101 @@
-Neighborhood Marketplace — Project Guide
+﻿# Neighborhood Marketplace — Project Guide
 
-Overview
+This single consolidated guide explains the repository layout, local setup, how to run the app (backend + frontend), environment variables, common developer workflows, and notes about validation and testing.
 
-This repository contains a Neighborhood Marketplace application (backend + frontend) built with Node.js/Express, MongoDB (Mongoose) and a React (Vite) frontend. The project supports items and services listing, user roles (buyer/seller/admin), chat, wishlists, and admin statistics.
+## Repository layout (top-level)
+- `backend/` — Node.js + Express server, controllers, models, utils, scripts.
+- `frontend/` — Vite + React app (JSX), API client, components, pages, styles.
+- Root files — project README, configuration and small helper docs.
 
-This single, concise guide explains how to run, test, and maintain the app.
+## Quick overview
+- Purpose: A neighborhood marketplace with item/service listings, chat, bookings, and admin features.
+- Tech: Node.js, Express, Socket.IO, MongoDB (Mongoose) on the backend; React (Vite) on the frontend; Axios for API calls.
 
-Quick Start (Development)
+## Environment & prerequisites
+- Node.js (v18+ recommended)
+- npm
+- MongoDB or MongoDB Atlas connection string
 
-1. Requirements
-   - Node.js (v18+ recommended)
-   - npm
-   - MongoDB instance (local or hosted)
+Create a `.env` file in `backend/` with at least the following variables:
 
-2. Backend
-   - Path: `backend/`
-   - Install dependencies:
+- `MONGO_URI` — MongoDB connection string
+- `JWT_SECRET` — secret for signing JWTs
+- `PORT` — optional (default 5000)
 
-```powershell
+Example `.env`:
+
+```
+MONGO_URI="mongodb://localhost:27017/neighborhood"
+JWT_SECRET="your_jwt_secret_here"
+PORT=5000
+```
+
+## Install dependencies
+1. Backend:
+
+```
 cd backend
 npm install
 ```
 
-   - Configure environment variables: create a `.env` file (see `.env.example` if present) with at least:
-     - `MONGO_URI` — MongoDB connection string
-     - `JWT_SECRET` — JWT signing secret
-     - `PORT` — (optional) backend port (defaults to 5000)
+2. Frontend:
 
-   - Start backend server:
-
-```powershell
-cd backend
-npm start
 ```
-
-   - If port 5000 is already in use, stop the process occupying it or change `PORT` in `.env`.
-
-3. Frontend
-   - Path: `frontend/`
-   - Install dependencies:
-
-```powershell
 cd frontend
 npm install
 ```
 
-   - Start dev server:
+## Run locally (development)
+1. Start backend (from `backend/`):
 
-```powershell
+```
+cd backend
+npm run dev   # or `npm start` depending on package.json scripts
+```
+
+If you see `EADDRINUSE` (port in use), either stop the process using that port or set `PORT` in `.env` to a free port.
+
+2. Start frontend (from `frontend/`):
+
+```
 cd frontend
 npm run dev
 ```
 
-   - Frontend communicates with backend at `http://localhost:5000/api` by default. See `frontend/src/api/api.js` to adjust baseURL.
+The frontend expects the backend API at `http://localhost:5000` by default; update `frontend/src/api/api.js` if you change the backend port.
 
-Validation & Data Quality
+## Creating an admin user / test data
+- The `backend/scripts/` folder contains helper scripts such as `createTestAdminUser.js`. Run them (with `node`) after the backend is running and connected to the DB.
 
-- Client + server validation is used for titles, descriptions, categories, and image URLs.
-- The frontend contains real-time validation to prevent gibberish product titles/descriptions before submission; the server enforces the same checks as a final gate.
-- Category values are canonical: `Electronics`, `Home Goods`, `Fashion`, `Games`, `Books`, `Sports`, `Others`.
+## Validation and UX notes
+- Client-side validation lives in `frontend/src/utils/validation.js` and is intended to provide immediate feedback while typing.
+- Server-side validation lives in `backend/utils/validation.js` and enforces rules for security and data integrity. Always trust server validation over client-side checks.
+- Recent UX improvement: typing is blocked while a detected invalid/gibberish token exists in the title/description fields (frontend). This is checked via a heuristic function and prevents further text insertion until the invalid token is removed.
 
-Common Commands
+## Debugging common issues
+- EADDRINUSE when starting backend: find and stop the process using the port (on Windows, use `netstat -ano | Select-String "5000"` to find PID, then `Stop-Process -Id <PID>` in PowerShell). Alternatively change the `PORT` env var.
+- HTTP 500 on API requests: tail the backend logs/console while reproducing the request to see the stack trace. Look for missing `MONGO_URI`, DB connection errors, or unhandled exceptions in controllers.
+- Repeated client network errors: unstable derivation of `user` or aggressive polling can cause many concurrent requests; `frontend/src/components/Navbar.jsx` contains the wishlist/chat polling logic — make `user` a stable state to avoid unnecessary effect runs.
 
-- Start backend: `cd backend; npm start`
-- Start frontend: `cd frontend; npm run dev`
-- Run one-off scripts (examples in `backend/scripts/`): `node backend/scripts/makeUserSeller.js --email you@example.com`
+## Testing
+- Manual: create items/services through the UI and confirm server responses. Check browser console and backend logs.
+- Automated: add tests under a `tests/` folder if desired. There are no CI tests included currently.
 
-Troubleshooting
+## Git & contributions
+- Branching: create feature branches from `main` and open PRs for review.
+- Commit messages: follow the repo's existing style (short type prefix, concise description).
 
-- ERR_INSUFFICIENT_RESOURCES / Network errors in frontend console:
-  - Ensure backend is running on expected port (default 5000).
-  - Check for multiple Node processes using the port (Windows PowerShell):
+## Where to look next in the code
+- Frontend: `frontend/src/pages/ItemCreate.jsx`, `frontend/src/pages/ServiceCreate.jsx`, `frontend/src/utils/validation.js`, `frontend/src/api/api.js`.
+- Backend: `backend/server.js`, `backend/controllers/`, `backend/utils/validation.js`, `backend/models/`.
 
-```powershell
-netstat -ano | Select-String ":5000"
-Get-Process -Id <PID> -ErrorAction SilentlyContinue
-```
-  - Kill stray node processes if necessary and restart backend.
-
-- POST /api/items/create returns 500:
-  - Check backend console for error logs. The backend returns error message in response JSON under `error` key.
-  - Ensure the request contains required fields (title, description, category) and a valid auth token.
-
-- Git workflow:
-  - Commit locally: `git add -A; git commit -m "msg"`
-  - Push: `git push origin main`
-
-Project Structure (high level)
-
-- backend/
-  - server.js — HTTP + Socket.IO server
-  - controllers/ — request handlers
-  - models/ — Mongoose schemas
-  - routes/ — Express routes
-  - utils/ — validation, auth middleware, view tracking
-  - scripts/ — maintenance scripts (makeUserSeller, normalize categories, etc.)
-
-- frontend/
-  - src/ — React app
-  - src/pages — major pages (ItemCreate, ServiceCreate, Home, Admin)
-  - src/components — shared components (Navbar, Chat, etc.)
-  - src/utils — frontend validation utilities
-  - src/api/api.js — axios client baseURL
-
-Testing
-
-- Manual: Follow flows in the app: create item/service as seller, verify validation, check admin stats.
-- API: Use Postman or curl to call the backend endpoints. Include `Authorization: Bearer <token>` header for protected routes.
-
-Notes
-
-- This guide intentionally replaces multiple generated documentation files with a single reference file. Code has not been modified by this guide.
-- If you want a more detailed breakdown (diagrams or step-by-step tests), tell me which area to expand and I will add it as a separate file.
-
-Contact
-
-- Repo owner: GitHub user `pooja032005` (the repo remote is already configured).
+## Contact / ownership
+- Repository owner: `pooja032005` (local workspace owner).
 
 ---
+If you'd like, I can now:
+- start the backend and capture logs while reproducing the HTTP 500 error,
+- run the frontend and demonstrate the live validation behavior,
+- or open a PR with these documentation changes instead of pushing directly to `main`.
 
-End of guide.
+Tell me which of those you'd like next.

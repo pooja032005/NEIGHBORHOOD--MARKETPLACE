@@ -21,12 +21,8 @@ export default function BuyerDashboard() {
   const fetchBuyerData = async () => {
     try {
       const [ordersRes, wishlistRes] = await Promise.all([
-        client.get('/orders', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-        }),
-        client.get('/users/wishlist', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-        }).catch(() => ({ data: [] })),
+        client.get('/orders'),
+        client.get('/users/wishlist').catch(() => ({ data: [] })),
       ]);
 
       setOrders(ordersRes.data || []);

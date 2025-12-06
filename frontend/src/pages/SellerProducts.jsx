@@ -22,9 +22,7 @@ export default function SellerProducts() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const res = await client.get('/seller/products', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      const res = await client.get('/seller/products');
       setProducts(res.data || []);
       setError('');
     } catch (err) {
@@ -38,9 +36,7 @@ export default function SellerProducts() {
 
   const handleDelete = async (productId) => {
     try {
-      await client.delete(`/seller/products/${productId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      await client.delete(`/seller/products/${productId}`);
       setProducts(products.filter(p => p._id !== productId));
       setDeleteConfirm(null);
     } catch (err) {

@@ -21,9 +21,7 @@ export default function OrderDetail() {
   const fetchOrderDetail = async () => {
     try {
       setLoading(true);
-      const res = await client.get(`/orders/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      const res = await client.get(`/orders/${id}`);
       setOrder(res.data);
       setError('');
     } catch (err) {

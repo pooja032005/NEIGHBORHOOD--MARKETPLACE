@@ -19,9 +19,7 @@ export default function SellerOrders() {
 
   const fetchOrders = async () => {
     try {
-      const res = await client.get('/seller/orders', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
+      const res = await client.get('/seller/orders');
       setOrders(res.data);
     } catch (err) {
       console.error('Error fetching orders:', err);

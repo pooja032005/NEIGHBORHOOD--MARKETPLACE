@@ -20,9 +20,7 @@ export default function SellerDashboard() {
 
   const fetchDashboardStats = async () => {
     try {
-      const res = await client.get('/seller/dashboard', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
+      const res = await client.get('/seller/dashboard');
       setStats(res.data);
     } catch (err) {
       console.error('Error fetching dashboard:', err);

@@ -16,7 +16,7 @@ const sellerAuth = [auth, requireSeller];
  */
 router.get('/products', sellerAuth, async (req, res) => {
   try {
-    const products = await Item.find({ sellerId: req.user._id }).lean();
+    const products = await Item.find({ owner: req.user._id }).lean();
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -30,7 +30,7 @@ router.get('/products', sellerAuth, async (req, res) => {
 router.get('/products/:id', sellerAuth, async (req, res) => {
   try {
     const product = await Item.findById(req.params.id);
-    if (!product || product.sellerId.toString() !== req.user._id.toString()) {
+    if (!product || product.owner.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Not your product' });
     }
     const analytics = await ProductAnalytics.findOne({ productId: req.params.id });
@@ -145,7 +145,7 @@ router.get('/orders', sellerAuth, async (req, res) => {
  */
 router.get('/dashboard', sellerAuth, async (req, res) => {
   try {
-    const products = await Item.find({ sellerId: req.user._id }).lean();
+    const products = await Item.find({ owner: req.user._id }).lean();
     const productIds = products.map(p => p._id);
 
     const analytics = await ProductAnalytics.find({ productId: { $in: productIds } }).lean();

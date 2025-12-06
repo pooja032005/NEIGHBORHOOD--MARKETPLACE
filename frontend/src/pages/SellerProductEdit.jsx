@@ -30,9 +30,7 @@ export default function SellerProductEdit() {
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      const res = await client.get(`/seller/products/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      const res = await client.get(`/seller/products/${id}`);
       setFormData(res.data);
       setError('');
     } catch (err) {
@@ -55,9 +53,7 @@ export default function SellerProductEdit() {
     e.preventDefault();
     try {
       setLoading(true);
-      await client.put(`/seller/products/${id}`, formData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      await client.put(`/seller/products/${id}`, formData);
       setSuccess('Product updated successfully!');
       setTimeout(() => navigate('/seller/products'), 2000);
     } catch (err) {

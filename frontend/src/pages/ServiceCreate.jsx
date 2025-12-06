@@ -161,7 +161,7 @@ export default function ServiceCreate() {
               }}
             >
               {label}
-              {(key === 'title' || key === 'description' || key === 'category') && (
+              {(key === 'title' || key === 'description' || key === 'category' || key === 'price' || key === 'location') && (
                 <span style={{ color: '#d32', marginLeft: 6 }}>*</span>
               )}
             </label>
@@ -260,6 +260,7 @@ export default function ServiceCreate() {
             }}
           >
             Upload Image (optional)
+            <span style={{ color: '#d32', marginLeft: 6 }}>*</span>
           </label>
           <input
             type="file"

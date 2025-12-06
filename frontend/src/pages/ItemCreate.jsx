@@ -166,7 +166,7 @@ export default function ItemCreate() {
               }}
             >
               {label}
-              {(key === 'title' || key === 'description' || key === 'category') && (
+              {(key === 'title' || key === 'description' || key === 'category' || key === 'price' || key === 'location' || key === 'imageUrl') && (
                 <span style={{ color: '#d32', marginLeft: 6 }}>*</span>
               )}
             </label>
@@ -305,6 +305,7 @@ export default function ItemCreate() {
             }}
           >
             Condition
+            <span style={{ color: '#d32', marginLeft: 6 }}>*</span>
           </label>
 
           <select

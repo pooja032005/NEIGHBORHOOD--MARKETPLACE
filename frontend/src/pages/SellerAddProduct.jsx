@@ -29,9 +29,7 @@ export default function SellerAddProduct() {
 
     try {
       setLoading(true);
-      const res = await client.post('/seller/products', form, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
+      const res = await client.post('/seller/products', form);
       alert('Product added successfully!');
       navigate('/seller/dashboard');
     } catch (err) {

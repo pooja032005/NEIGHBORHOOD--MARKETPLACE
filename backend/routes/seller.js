@@ -61,7 +61,7 @@ router.post('/products', sellerAuth, async (req, res) => {
       condition: condition || 'new',
       price,
       location,
-      sellerId: req.user._id,
+      owner: req.user._id,
       postedBy: req.user.name || req.user.email,
     });
 
@@ -84,7 +84,7 @@ router.post('/products', sellerAuth, async (req, res) => {
 router.put('/products/:id', sellerAuth, async (req, res) => {
   try {
     const product = await Item.findById(req.params.id);
-    if (!product || product.sellerId.toString() !== req.user._id.toString()) {
+    if (!product || product.owner.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Not your product' });
     }
 
@@ -111,7 +111,7 @@ router.put('/products/:id', sellerAuth, async (req, res) => {
 router.delete('/products/:id', sellerAuth, async (req, res) => {
   try {
     const product = await Item.findById(req.params.id);
-    if (!product || product.sellerId.toString() !== req.user._id.toString()) {
+    if (!product || product.owner.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Not your product' });
     }
 

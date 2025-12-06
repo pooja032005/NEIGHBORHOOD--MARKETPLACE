@@ -260,7 +260,6 @@ export default function ServiceCreate() {
             }}
           >
             Upload Image (optional)
-            <span style={{ color: '#d32', marginLeft: 6 }}>*</span>
           </label>
           <input
             type="file"

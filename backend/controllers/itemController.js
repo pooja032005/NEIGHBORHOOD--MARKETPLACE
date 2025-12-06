@@ -1,4 +1,5 @@
 const Item = require("../models/Item");
+const ProductAnalytics = require("../models/ProductAnalytics");
 const { logProductView } = require("../utils/viewTracking");
 const { isValidTitle, isValidDescription, isValidImageUrl } = require('../utils/validation');
 
@@ -101,6 +102,18 @@ exports.getItemById = async (req, res) => {
 
     // Log view in background
     logProductView(req.params.id, 'Item', req.user || null);
+
+    // Increment ProductAnalytics.views
+    try {
+      await ProductAnalytics.findOneAndUpdate(
+        { productId: req.params.id },
+        { $inc: { views: 1 } },
+        { upsert: true, new: true }
+      );
+    } catch (analyticsErr) {
+      console.error("Error incrementing views analytics:", analyticsErr);
+      // Don't fail the request if analytics fails
+    }
 
     res.json(item);
 

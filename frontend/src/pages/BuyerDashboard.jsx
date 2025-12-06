@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import client from '../api/api';
 
 export default function BuyerDashboard() {
@@ -74,7 +74,11 @@ export default function BuyerDashboard() {
               </thead>
               <tbody>
                 {orders.slice(0, 10).map(order => (
-                  <tr key={order._id} style={{ borderBottom: '1px solid #eee' }}>
+                  <tr 
+                    key={order._id} 
+                    style={{ borderBottom: '1px solid #eee', cursor: 'pointer' }}
+                    onClick={() => navigate(`/orders/${order._id}`)}
+                  >
                     <td style={{ padding: '10px' }}>{order._id.slice(0, 8)}...</td>
                     <td style={{ padding: '10px' }}>₹{order.totalPrice}</td>
                     <td style={{ padding: '10px', color: order.orderStatus === 'delivered' ? 'green' : 'orange' }}>

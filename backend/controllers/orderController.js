@@ -3,6 +3,7 @@ const Order = require('../models/Order');
 const Address = require('../models/Address');
 const Item = require('../models/Item');
 const User = require('../models/User');
+const ProductAnalytics = require('../models/ProductAnalytics');
 
 // Create an order
 exports.createOrder = async (req, res) => {
@@ -28,6 +29,17 @@ exports.createOrder = async (req, res) => {
       orderStatus: 'confirmed',
       estimatedDeliveryDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
     });
+
+    // Increment ProductAnalytics.purchases
+    try {
+      await ProductAnalytics.findOneAndUpdate(
+        { productId: itemId },
+        { $inc: { purchases: 1 } },
+        { upsert: true, new: true }
+      );
+    } catch (analyticsErr) {
+      console.error("Error incrementing purchase analytics:", analyticsErr);
+    }
 
     // Save address if requested
     if (saveAddress && deliveryAddress) {

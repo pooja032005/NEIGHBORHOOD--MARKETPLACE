@@ -32,6 +32,14 @@ import CartPage from './pages/CartPage';
 import Address from './pages/Address';
 import Payment from './pages/Payment';
 import OrderSuccess from './pages/OrderSuccess';
+import HomeV2 from './pages/HomeV2';
+import SellerDashboard from './pages/SellerDashboard';
+import SellerAddProduct from './pages/SellerAddProduct';
+import SellerProducts from './pages/SellerProducts';
+import SellerProductEdit from './pages/SellerProductEdit';
+import SellerOrders from './pages/SellerOrders';
+import BuyerDashboard from './pages/BuyerDashboard';
+import OrderDetail from './pages/OrderDetail';
 
 function App() {
   return (
@@ -41,7 +49,8 @@ function App() {
 
       <main style={{ padding: 20 }}>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<HomeV2 />} />
+          <Route path="/home" element={<Home />} />
 
           {/* Items */}
           <Route path="/items" element={<ItemList />} />
@@ -72,6 +81,22 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile/edit" element={<ProfileEdit />} />
           <Route path="/edit-profile" element={<EditProfile />} />
+
+          {/* Orders */}
+          <Route path="/orders/:id" element={<OrderDetail />} />
+
+          {/* Seller Dashboards */}
+          <Route path="/seller/dashboard" element={<SellerDashboard />} />
+          <Route path="/seller/add-product" element={<SellerAddProduct />} />
+          <Route path="/seller/products" element={<SellerProducts />} />
+          <Route path="/seller/products/:id/edit" element={<SellerProductEdit />} />
+          <Route path="/seller/orders" element={<SellerOrders />} />
+
+          {/* Buyer Dashboards */}
+          <Route path="/buyer/dashboard" element={<BuyerDashboard />} />
+
+          {/* Home V2 (Amazon-style) */}
+          <Route path="/home-v2" element={<HomeV2 />} />
 
           {/* Auth */}
           <Route path="/login" element={<Login />} />

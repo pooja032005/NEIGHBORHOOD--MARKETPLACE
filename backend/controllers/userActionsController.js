@@ -1,6 +1,7 @@
 // backend/controllers/userActionsController.js
 const User = require("../models/User");
 const Item = require("../models/Item"); // for basic validation
+const ProductAnalytics = require("../models/ProductAnalytics"); // for analytics tracking
 
 // Get cart (populate item)
 exports.getCart = async (req, res) => {
@@ -29,6 +30,17 @@ exports.addToCart = async (req, res) => {
       existing.qty = Math.max(1, existing.qty + Number(qty));
     } else {
       user.cart.push({ item: itemId, qty: Number(qty) });
+      
+      // Increment ProductAnalytics.cartAdds (only on first add, not on quantity update)
+      try {
+        await ProductAnalytics.findOneAndUpdate(
+          { productId: itemId },
+          { $inc: { cartAdds: 1 } },
+          { upsert: true, new: true }
+        );
+      } catch (analyticsErr) {
+        console.error("Error incrementing cart analytics:", analyticsErr);
+      }
     }
     await user.save();
     await user.populate("cart.item");
@@ -75,6 +87,17 @@ exports.addToWishlist = async (req, res) => {
     if (!user.wishlist.find(w => w.item.equals(itemId))) {
       user.wishlist.push({ item: itemId });
       await user.save();
+      
+      // Increment ProductAnalytics.wishlistAdds (only on first add)
+      try {
+        await ProductAnalytics.findOneAndUpdate(
+          { productId: itemId },
+          { $inc: { wishlistAdds: 1 } },
+          { upsert: true, new: true }
+        );
+      } catch (analyticsErr) {
+        console.error("Error incrementing wishlist analytics:", analyticsErr);
+      }
     }
     await user.populate("wishlist.item");
     res.json({ wishlist: user.wishlist });

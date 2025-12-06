@@ -5,163 +5,184 @@ import '../styles/home-v2.css';
 
 export default function HomeV2() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
   const [items, setItems] = useState([]);
-  const [trendingItems, setTrendingItems] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [carouselIndex, setCarouselIndex] = useState(0);
-
-  const categoryList = ['Electronics', 'Home Goods', 'Fashion', 'Games', 'Books', 'Sports'];
 
   useEffect(() => {
+    // Check if user is logged in
+    const stored = localStorage.getItem('user');
+    if (stored) {
+      try {
+        setUser(JSON.parse(stored));
+      } catch (e) {
+        setUser(null);
+      }
+    }
+
+    // Fetch items for "Browse Products" section
     fetchItems();
-    setCategories(categoryList);
-
-    const carouselTimer = setInterval(() => {
-      setCarouselIndex(prev => (prev + 1) % 5); // 5 banners
-    }, 5000);
-
-    return () => clearInterval(carouselTimer);
   }, []);
 
   const fetchItems = async () => {
     try {
       const res = await client.get('/items');
-      setItems(res.data);
-      // Sort by popularity (mock: random for now)
-      setTrendingItems(res.data.slice(0, 8));
+      setItems((res.data || []).slice(0, 6));
     } catch (err) {
       console.error('Error fetching items:', err);
     }
   };
 
-  const carouselBanners = [
-    { title: '🛍️ Mega Sale', subtitle: 'Up to 70% OFF', color: '#FF5733' },
-    { title: '⚡ Flash Deal', subtitle: 'Limited Time Offer', color: '#3498DB' },
-    { title: '🎁 New Arrivals', subtitle: 'Fresh Products', color: '#2ECC71' },
-    { title: '📱 Tech Fest', subtitle: 'Gadgets on Sale', color: '#9B59B6' },
-    { title: '💎 Premium Store', subtitle: 'Quality Products', color: '#E67E22' },
-  ];
+  const handleBrowse = () => {
+    navigate('/items');
+  };
+
+  const handleBecomeSeller = () => {
+    if (!user) {
+      navigate('/register');
+    } else if (user.role === 'buyer') {
+      // Show role change dialog or navigate to profile to change role
+      navigate('/profile/edit');
+    } else {
+      navigate('/seller/dashboard');
+    }
+  };
 
   return (
     <div className="home-v2-container">
-      {/* Top Banner with Carousel */}
-      <section className="carousel-section">
-        <div className="carousel">
-          {carouselBanners.map((banner, idx) => (
-            <div
-              key={idx}
-              className={`carousel-slide ${idx === carouselIndex ? 'active' : ''}`}
-              style={{ background: banner.color }}
-            >
-              <div className="carousel-content">
-                <div className="carousel-title">{banner.title}</div>
-                <div className="carousel-subtitle">{banner.subtitle}</div>
-                <button className="carousel-btn">Shop Now</button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Carousel Controls */}
-        <div className="carousel-dots">
-          {carouselBanners.map((_, idx) => (
-            <button
-              key={idx}
-              className={`dot ${idx === carouselIndex ? 'active' : ''}`}
-              onClick={() => setCarouselIndex(idx)}
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* Categories Section */}
-      <section className="categories-section">
-        <h2>Shop by Category</h2>
-        <div className="categories-grid">
-          {categories.map(cat => (
-            <Link
-              key={cat}
-              to={`/items?category=${cat}`}
-              className="category-card"
-            >
-              <div className="category-icon">
-                {cat === 'Electronics' && '📱'}
-                {cat === 'Home Goods' && '🏠'}
-                {cat === 'Fashion' && '👗'}
-                {cat === 'Games' && '🎮'}
-                {cat === 'Books' && '📚'}
-                {cat === 'Sports' && '⚽'}
-              </div>
-              <div className="category-name">{cat}</div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Deals of the Day */}
-      <section className="deals-section">
-        <div className="deals-header">
-          <h2>⚡ Deals of the Day</h2>
-          <Link to="/items" className="view-all">View All →</Link>
-        </div>
-        <div className="deals-grid">
-          {items.slice(0, 4).map(item => (
-            <div key={item._id} className="deal-card">
-              <div className="deal-image">
-                <img
-                  src={item.imageUrl || 'https://via.placeholder.com/250x200?text=Product'}
-                  alt={item.title}
-                />
-                <div className="deal-badge">HOT</div>
-              </div>
-              <div className="deal-content">
-                <h3>{item.title?.substring(0, 30)}</h3>
-                <div className="deal-price">₹{item.price}</div>
-                <button
-                  className="add-to-cart-btn"
-                  onClick={() => navigate(`/items/${item._id}`)}
-                >
-                  View Details
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Trending Products */}
-      <section className="trending-section">
-        <h2>🔥 Trending Products</h2>
-        <div className="trending-grid">
-          {trendingItems.map(item => (
-            <div key={item._id} className="trending-card">
-              <Link to={`/items/${item._id}`} className="trending-image-link">
-                <img
-                  src={item.imageUrl || 'https://via.placeholder.com/220x180?text=Product'}
-                  alt={item.title}
-                  className="trending-image"
-                />
-              </Link>
-              <div className="trending-info">
-                <h4>{item.title?.substring(0, 25)}</h4>
-                <div className="trending-category">{item.category}</div>
-                <div className="trending-price">₹{item.price}</div>
-                <div className="trending-location">📍 {item.location || 'Location'}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Call to Action */}
-      <section className="cta-section">
-        <div className="cta-box">
-          <div className="cta-content">
-            <h2>Become a Seller</h2>
-            <p>Start selling your products on our marketplace today!</p>
-            <Link to="/items/create" className="cta-btn">Start Selling</Link>
+      {/* Hero Section */}
+      <section className="hero-section">
+        <div className="hero-content">
+          <div className="hero-text">
+            <h1 className="hero-title">
+              <span className="power">Power your</span>
+              <span className="adventures">neighborhood</span>
+            </h1>
+            <p className="hero-subtitle">Buy, Sell & Share within your Community</p>
+            <p className="hero-description">
+              Tap into a trusted network of neighbors and local businesses
+            </p>
           </div>
-          <div className="cta-icon">🏪</div>
+
+          <div className="hero-graphics">
+            <div className="balloon balloon-1">🎈</div>
+            <div className="balloon balloon-2">🎈</div>
+            <div className="weather-icon sun">☀️</div>
+            <div className="weather-icon cloud">☁️</div>
+          </div>
+        </div>
+
+        <div className="landscape">
+          <div className="trees left-trees">🌲🌲🌲</div>
+          <div className="windmill left-windmill">💨</div>
+          <div className="solar-panel left-solar">☼</div>
+          <div className="trees right-trees">🌲🌲🌲</div>
+          <div className="windmill right-windmill">💨</div>
+          <div className="solar-panel right-solar">☼</div>
+        </div>
+      </section>
+
+      {/* CTA Buttons Section */}
+      <section className="cta-section">
+        <div className="cta-content">
+          <div className="cta-box">
+            <h3>🏠 I have a Home</h3>
+            <p>Buy or Sell items from your home</p>
+            <button className="cta-btn btn-home" onClick={handleBrowse}>
+              Browse Marketplace
+            </button>
+          </div>
+
+          <div className="cta-box">
+            <h3>🏢 I have a Business</h3>
+            <p>Grow your business with local reach</p>
+            <button className="cta-btn btn-business" onClick={handleBecomeSeller}>
+              Become a Seller
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Products Section */}
+      {items.length > 0 && (
+        <section className="products-section">
+          <h2>🛍️ Featured Products</h2>
+          <div className="products-grid">
+            {items.map(item => (
+              <Link 
+                key={item._id}
+                to={`/items/${item._id}`}
+                className="product-card"
+                style={{ textDecoration: 'none' }}
+              >
+                <img 
+                  src={item.imageUrl || 'https://via.placeholder.com/200'} 
+                  alt={item.title}
+                  className="product-image"
+                />
+                <div className="product-details">
+                  <h4>{item.title}</h4>
+                  <p className="product-price">₹{item.price}</p>
+                  <p className="product-location">📍 {item.location}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+          <Link to="/items" className="view-all-link">
+            View All Products →
+          </Link>
+        </section>
+      )}
+
+      {/* Features Section */}
+      <section className="features-section">
+        <h2>Why Choose NeighborhoodMarket?</h2>
+        <div className="features-grid">
+          <div className="feature-card">
+            <span className="feature-icon">🤝</span>
+            <h4>Trusted Community</h4>
+            <p>Buy and sell with neighbors you trust</p>
+          </div>
+          <div className="feature-card">
+            <span className="feature-icon">💰</span>
+            <h4>Better Prices</h4>
+            <p>No middlemen, better deals for everyone</p>
+          </div>
+          <div className="feature-card">
+            <span className="feature-icon">🚀</span>
+            <h4>Fast & Easy</h4>
+            <p>Quick listings, instant buyers, smooth transactions</p>
+          </div>
+          <div className="feature-card">
+            <span className="feature-icon">🔒</span>
+            <h4>Safe & Secure</h4>
+            <p>Verified users and secure payment methods</p>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Footer */}
+      <section className="cta-footer">
+        <h2>Ready to Get Started?</h2>
+        <div className="footer-buttons">
+          {!user ? (
+            <>
+              <Link to="/register" className="btn btn-primary">
+                Sign Up Now
+              </Link>
+              <Link to="/login" className="btn btn-secondary">
+                Already a Member? Login
+              </Link>
+            </>
+          ) : (
+            <>
+              <button className="btn btn-primary" onClick={handleBrowse}>
+                Shop Now
+              </button>
+              <button className="btn btn-secondary" onClick={handleBecomeSeller}>
+                Become a Seller
+              </button>
+            </>
+          )}
         </div>
       </section>
     </div>

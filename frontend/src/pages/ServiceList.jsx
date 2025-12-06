@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import client from "../api/api";
-import "../styles/servicelist.css";
+import "../styles/itemlist.css";
 
 export default function ServiceList() {
   const navigate = useNavigate();
@@ -61,10 +61,10 @@ export default function ServiceList() {
   };
 
   return (
-    <div className="servicelist-container">
-      <div className="servicelist-wrapper">
+    <div className="itemlist-container">
+      <div className="itemlist-wrapper">
         {/* Left Filter Panel */}
-        <aside className="filter-panel-services">
+        <aside className="filter-panel-items">
           <h3 className="filter-title">🔍 Filters</h3>
 
           <form onSubmit={handleApplyFilters}>
@@ -128,19 +128,19 @@ export default function ServiceList() {
         </aside>
 
         {/* Services Display */}
-        <main className="services-display">
-          <div className="services-header">
+        <main className="items-container">
+          <div className="items-header">
             <h2>Available Services</h2>
-            <p className="service-count">
+            <span className="items-count">
               Showing {filteredCount} service{filteredCount !== 1 ? "s" : ""}
-            </p>
+            </span>
             {/* Post Service button (visible when logged in) */}
             {localStorage.getItem("token") ? (
-              <Link to="/services/create" className="btn-post-service">
+              <Link to="/services/create" className="btn-post-item">
                 + Post Service
               </Link>
             ) : (
-              <Link to="/login" className="btn-post-service btn-need-login">
+              <Link to="/login" className="btn-post-item btn-need-login">
                 Sign in to Post
               </Link>
             )}
@@ -149,22 +149,18 @@ export default function ServiceList() {
           {loading ? (
             <div className="loading-spinner">Loading services...</div>
           ) : services.length === 0 ? (
-            <div className="no-services">
-              <p>No services found matching your criteria.</p>
-              <button onClick={handleResetFilters} className="btn-reset-large">
-                Clear Filters
-              </button>
+            <div className="no-items">
+              <p>📭 No services found matching your criteria</p>
+              <p className="no-items-hint">Try adjusting your search criteria</p>
+              <button onClick={handleResetFilters} className="btn-reset-large">Clear all filters</button>
             </div>
           ) : (
-            <div className="services-grid">
+            <div className="items-grid">
               {services.map((service) => (
                 <div key={service._id} className="service-card">
                   <div className="service-image-wrapper">
                     <img
-                      src={
-                        service.imageUrl ||
-                        "https://via.placeholder.com/300x200?text=Service"
-                      }
+                      src={service.imageUrl || "https://via.placeholder.com/300x200?text=Service"}
                       alt={service.title}
                       className="service-image"
                     />
@@ -179,35 +175,18 @@ export default function ServiceList() {
                         {service.provider?.name?.charAt(0).toUpperCase() || "P"}
                       </div>
                       <div>
-                        <p className="provider-name">
-                          {service.provider?.name || "Provider"}
-                        </p>
-                        <p className="provider-location">
-                          📍 {service.provider?.location || "Location"}
-                        </p>
+                        <p className="provider-name">{service.provider?.name || "Provider"}</p>
+                        <p className="provider-location">📍 {service.provider?.location || "Location"}</p>
                       </div>
                     </div>
 
-                    <p className="service-description">
-                      {service.description?.substring(0, 80)}...
-                    </p>
+                    <p className="service-description">{service.description?.substring(0, 80)}...</p>
 
                     <div className="service-price-section">
-                      <p className="service-price">
-                        ₹ {service.price}
-                        <span className="price-type">
-                          {" "}
-                          {service.priceType || "/hour"}
-                        </span>
-                      </p>
+                      <p className="service-price">₹ {service.price}<span className="price-type"> {service.priceType || "/hour"}</span></p>
                     </div>
 
-                    <button
-                      className="btn-view-service"
-                      onClick={() => navigate(`/services/${service._id}`)}
-                    >
-                      View Service →
-                    </button>
+                    <button className="btn-view-service" onClick={() => navigate(`/services/${service._id}`)}>View Service →</button>
                   </div>
                 </div>
               ))}

@@ -166,6 +166,9 @@ export default function ItemCreate() {
               }}
             >
               {label}
+              {(key === 'title' || key === 'description' || key === 'category') && (
+                <span style={{ color: '#d32', marginLeft: 6 }}>*</span>
+              )}
             </label>
 
             {type === "textarea" ? (

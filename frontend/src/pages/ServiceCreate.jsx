@@ -161,6 +161,9 @@ export default function ServiceCreate() {
               }}
             >
               {label}
+              {(key === 'title' || key === 'description' || key === 'category') && (
+                <span style={{ color: '#d32', marginLeft: 6 }}>*</span>
+              )}
             </label>
 
             {type === "textarea" ? (

@@ -14,6 +14,8 @@ export default function SellerAddProduct() {
     location: '',
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,19 +24,23 @@ export default function SellerAddProduct() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setSuccess('');
+    
     if (!form.title || !form.description || !form.category || !form.price) {
-      alert('Please fill all required fields');
+      setError('Please fill all required fields');
       return;
     }
 
     try {
       setLoading(true);
       const res = await client.post('/seller/products', form);
-      alert('Product added successfully!');
-      navigate('/seller/dashboard');
+      setSuccess('Product added successfully! Redirecting...');
+      setTimeout(() => navigate('/seller/dashboard'), 1500);
     } catch (err) {
-      console.error(err);
-      alert('Failed to add product');
+      console.error('Full error:', err);
+      const errorMsg = err.response?.data?.message || err.response?.data?.error || err.message || 'Failed to add product';
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -43,6 +49,39 @@ export default function SellerAddProduct() {
   return (
     <div style={{ maxWidth: '600px', margin: '40px auto', padding: '20px' }}>
       <h1>Add New Product</h1>
+      
+      {error && (
+        <div style={{
+          padding: '12px',
+          marginBottom: '20px',
+          background: '#fee',
+          border: '1px solid #fcc',
+          borderRadius: '5px',
+          color: '#c33'
+        }}>
+          ❌ {error}
+          {error.includes('Seller') && (
+            <div style={{ marginTop: '8px', fontSize: '12px', color: '#999' }}>
+              💡 <strong>Tip:</strong> You need a Seller account to add products. 
+              Please register as a Seller or contact support to upgrade your account.
+            </div>
+          )}
+        </div>
+      )}
+      
+      {success && (
+        <div style={{
+          padding: '12px',
+          marginBottom: '20px',
+          background: '#efe',
+          border: '1px solid #cfc',
+          borderRadius: '5px',
+          color: '#3c3'
+        }}>
+          ✅ {success}
+        </div>
+      )}
+      
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: '15px' }}>
           <label>Title *</label>

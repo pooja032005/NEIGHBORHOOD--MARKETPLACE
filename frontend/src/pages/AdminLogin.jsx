@@ -21,7 +21,7 @@ export default function AdminLogin(){
       localStorage.setItem('user', JSON.stringify(data.user));
 
       if (data.user.role === 'admin') {
-        navigate('/admin');
+        navigate('/admin/dashboard');
       } else {
         // Not an admin; clear and show message
         localStorage.removeItem('token');

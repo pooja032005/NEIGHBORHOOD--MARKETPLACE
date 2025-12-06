@@ -21,16 +21,33 @@ export default function SellerDashboard() {
   const fetchDashboardStats = async () => {
     try {
       const res = await client.get('/seller/dashboard');
-      setStats(res.data);
+      setStats(res.data || {
+        totalProducts: 0,
+        totalViews: 0,
+        totalWishlistAdds: 0,
+        totalPurchases: 0,
+        totalOrders: 0,
+        products: [],
+        analytics: []
+      });
     } catch (err) {
       console.error('Error fetching dashboard:', err);
-      alert('Failed to load dashboard');
+      setStats({
+        totalProducts: 0,
+        totalViews: 0,
+        totalWishlistAdds: 0,
+        totalPurchases: 0,
+        totalOrders: 0,
+        products: [],
+        analytics: []
+      });
     } finally {
       setLoading(false);
     }
   };
 
   if (loading) return <div className="loading">Loading dashboard...</div>;
+  if (!stats) return <div className="loading">No data available</div>;
 
   return (
     <div className="seller-dashboard-container">
@@ -99,7 +116,7 @@ export default function SellerDashboard() {
                       <td>{analytics?.wishlistAdds || 0}</td>
                       <td>{analytics?.purchases || 0}</td>
                       <td>
-                        <Link to={`/seller/edit/${product._id}`} className="btn-edit">Edit</Link>
+                        <Link to={`/seller/products/${product._id}/edit`} className="btn-edit">Edit</Link>
                       </td>
                     </tr>
                   );

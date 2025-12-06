@@ -38,6 +38,7 @@ import SellerAddProduct from './pages/SellerAddProduct';
 import SellerProducts from './pages/SellerProducts';
 import SellerProductEdit from './pages/SellerProductEdit';
 import SellerOrders from './pages/SellerOrders';
+import SellerAnalytics from './pages/SellerAnalytics';
 import BuyerDashboard from './pages/BuyerDashboard';
 import OrderDetail from './pages/OrderDetail';
 
@@ -91,6 +92,7 @@ function App() {
           <Route path="/seller/products" element={<SellerProducts />} />
           <Route path="/seller/products/:id/edit" element={<SellerProductEdit />} />
           <Route path="/seller/orders" element={<SellerOrders />} />
+          <Route path="/seller/analytics" element={<SellerAnalytics />} />
 
           {/* Buyer Dashboards */}
           <Route path="/buyer/dashboard" element={<BuyerDashboard />} />

@@ -112,7 +112,24 @@ export default function Navbar() {
           <>
             <Link to="/profile" style={styles.link}>Profile</Link>
             <Link to="/chats" style={styles.link}>Chats 💬 <span style={styles.badge}>{chatUnread}</span></Link>
-            {user.role === 'admin' && <Link to="/admin" style={{...styles.link, color: '#667eea', fontWeight: '700'}}>📊 Admin</Link>}
+            
+            {/* Role-based dashboard links */}
+            {user.role === 'seller' && (
+              <Link to="/seller/dashboard" style={{...styles.link, color: '#10b981', fontWeight: '700'}}>
+                📦 Seller Dashboard
+              </Link>
+            )}
+            {user.role === 'admin' && (
+              <Link to="/admin/analytics" style={{...styles.link, color: '#667eea', fontWeight: '700'}}>
+                📊 Admin Dashboard
+              </Link>
+            )}
+            {user.role === 'buyer' && (
+              <Link to="/buyer/dashboard" style={{...styles.link, color: '#f59e0b', fontWeight: '700'}}>
+                🛍️ My Orders
+              </Link>
+            )}
+            
             <ThemeToggle />
             <button onClick={logout} style={styles.logoutBtn}>Logout</button>
           </>

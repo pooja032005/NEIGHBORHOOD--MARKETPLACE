@@ -1,21 +1,50 @@
 // backend/models/Order.js
 const mongoose = require('mongoose');
 
-const OrderSchema = new mongoose.Schema(
+// Order item schema (for multi-item orders with different sellers)
+const OrderItemSchema = new mongoose.Schema(
   {
-    userId: {
+    itemId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Item',
+    },
+    serviceId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Service',
+    },
+    title: { type: String, required: true },
+    price: { type: Number, required: true },
+    quantity: { type: Number, default: 1 },
+    sellerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
+  },
+  { _id: false }
+);
+
+const OrderSchema = new mongoose.Schema(
+  {
+    // Support both old (userId) and new (buyerId) for backward compatibility
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    buyerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    // New: multi-item support
+    items: [OrderItemSchema],
+    // Old: keep for backward compatibility
     itemId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Item',
-      required: true,
     },
     quantity: {
       type: Number,
-      required: true,
       default: 1,
     },
     totalPrice: {

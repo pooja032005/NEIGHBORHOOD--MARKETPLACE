@@ -29,6 +29,8 @@ const adminManagementRoutes = require("./routes/adminManagement");
 const bookingRoutes = require("./routes/bookings");
 const userActionsRoutes = require("./routes/userActions");
 const orderRoutes = require("./routes/orders");
+const sellerRoutes = require("./routes/seller");
+const adminAnalyticsRoutes = require("./routes/adminAnalytics");
 
 app.use("/api/items", itemRoutes);
 app.use("/api/services", serviceRoutes);
@@ -36,6 +38,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/admin-management", adminManagementRoutes);
+app.use("/api/admin/stats", adminAnalyticsRoutes);
+app.use("/api/seller", sellerRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/user-actions", userActionsRoutes);
 app.use("/api/orders", orderRoutes);

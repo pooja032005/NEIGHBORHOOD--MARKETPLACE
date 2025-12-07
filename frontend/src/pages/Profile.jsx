@@ -36,7 +36,8 @@ export default function Profile(){
     ]).finally(() => setLoading(false));
   }, [stored, navigate]);
 
-  const isSeller = stored?.role === 'seller';
+  const role = (userDetails && userDetails.role) || stored?.role || 'buyer';
+  const isSeller = role === 'seller';
   const avatarLetter = userDetails?.name?.charAt(0).toUpperCase() || 'U';
 
   if (loading) return <div className="loading">⏳ Loading...</div>;
@@ -57,8 +58,8 @@ export default function Profile(){
             {userDetails.city && <p className="profile-city">📍 {userDetails.city}</p>}
             
             <div className="role-badge-container">
-              <span className={`role-badge ${isSeller ? 'seller' : 'buyer'}`}>
-                {isSeller ? '🏪 Seller' : '👤 Buyer'}
+              <span className={`role-badge ${role}`}>
+                {role === 'seller' ? '🏪 Seller' : '👤 Buyer'}
               </span>
             </div>
           </div>

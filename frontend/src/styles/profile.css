@@ -92,6 +92,17 @@
   color: #1e40af;
 }
 
+/* Buyer / Seller specific badges */
+.role-badge.buyer {
+  background: #fff7ed;
+  color: #a05500;
+}
+
+.role-badge.seller {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
 .btn-edit {
   padding: 12px 24px;
   background: linear-gradient(135deg, #667eea, #764ba2);

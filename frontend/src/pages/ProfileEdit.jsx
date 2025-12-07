@@ -10,6 +10,7 @@ export default function ProfileEdit() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
   const [errors, setErrors] = useState({});
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -28,8 +29,12 @@ export default function ProfileEdit() {
       return;
     }
 
-    fetchUserProfile();
-  }, [stored, navigate]);
+    // Only fetch once on mount
+    if (!hasLoaded) {
+      fetchUserProfile();
+      setHasLoaded(true);
+    }
+  }, []);
 
   const fetchUserProfile = async () => {
     try {

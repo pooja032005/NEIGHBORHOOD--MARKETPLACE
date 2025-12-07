@@ -157,9 +157,14 @@ export default function Profile(){
               <h3>Seller Dashboard</h3>
               <p>Manage your shop and settings</p>
             </div>
-            <Link to="/admin" className="btn-dashboard">
-              Go to Dashboard →
-            </Link>
+            <div className="seller-actions">
+              <Link to="/seller/dashboard" className="btn-dashboard">
+                📊 Dashboard
+              </Link>
+              <Link to="/profile/edit" className="btn-edit-dashboard">
+                ⚙️ Edit Settings
+              </Link>
+            </div>
           </div>
         </section>
       )}

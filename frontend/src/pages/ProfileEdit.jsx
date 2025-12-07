@@ -9,6 +9,7 @@ export default function ProfileEdit() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
+  const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
     name: '',
@@ -61,9 +62,52 @@ export default function ProfileEdit() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    let validatedValue = value;
+    let error = '';
+
+    // Phone validation: numbers only, max 10 digits
+    if (name === 'phone') {
+      validatedValue = value.replace(/[^0-9]/g, '');
+      if (validatedValue.length > 10) {
+        validatedValue = validatedValue.slice(0, 10);
+      }
+      if (validatedValue.length > 0 && validatedValue.length < 10) {
+        error = 'Phone number must be 10 digits';
+      }
+    }
+
+    // Address validation: max 150 characters
+    if (name === 'address') {
+      if (value.length > 150) {
+        validatedValue = value.slice(0, 150);
+        error = 'Address cannot exceed 150 characters';
+      }
+    }
+
+    // Name validation: max 50 characters
+    if (name === 'name') {
+      if (value.length > 50) {
+        validatedValue = value.slice(0, 50);
+        error = 'Name cannot exceed 50 characters';
+      }
+    }
+
+    // City validation: max 50 characters
+    if (name === 'city') {
+      if (value.length > 50) {
+        validatedValue = value.slice(0, 50);
+        error = 'City cannot exceed 50 characters';
+      }
+    }
+
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: validatedValue
+    }));
+
+    setErrors(prev => ({
+      ...prev,
+      [name]: error
     }));
   };
 
@@ -77,8 +121,24 @@ export default function ProfileEdit() {
   const handleSaveProfile = async (e) => {
     e.preventDefault();
     
+    // Validate all fields before saving
+    const newErrors = {};
+    
     if (!formData.name.trim()) {
-      showToast('Name is required', 'error');
+      newErrors.name = 'Name is required';
+    }
+    
+    if (formData.phone && formData.phone.length !== 10) {
+      newErrors.phone = 'Phone number must be exactly 10 digits';
+    }
+    
+    if (formData.address && formData.address.length > 150) {
+      newErrors.address = 'Address cannot exceed 150 characters';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      showToast('Please fix the errors below', 'error');
       return;
     }
 
@@ -187,9 +247,12 @@ export default function ProfileEdit() {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                placeholder="Enter your phone number"
-                className="form-input"
+                placeholder="Enter your 10-digit phone number"
+                className={`form-input ${errors.phone ? 'input-error' : ''}`}
+                maxLength="10"
               />
+              {errors.phone && <small className="error-text">{errors.phone}</small>}
+              <small className="form-help">10 digits only, no special characters</small>
             </div>
           </div>
 
@@ -211,16 +274,19 @@ export default function ProfileEdit() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="address">Full Address</label>
+              <label htmlFor="address">Full Address <small>({formData.address.length}/150)</small></label>
               <textarea
                 id="address"
                 name="address"
                 value={formData.address}
                 onChange={handleChange}
                 placeholder="Enter your complete address"
-                className="form-input form-textarea"
+                className={`form-input form-textarea ${errors.address ? 'input-error' : ''}`}
                 rows="3"
+                maxLength="150"
               />
+              {errors.address && <small className="error-text">{errors.address}</small>}
+              <small className="form-help">Maximum 150 characters</small>
             </div>
           </div>
 

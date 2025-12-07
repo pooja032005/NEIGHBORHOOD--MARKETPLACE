@@ -315,7 +315,9 @@
   display: flex;
   gap: 20px;
   align-items: center;
+  justify-content: space-between;
   border: 2px solid #ffd6e6;
+  flex-wrap: wrap;
 }
 
 .seller-icon,
@@ -327,6 +329,7 @@
 .seller-content,
 .admin-content {
   flex: 1;
+  min-width: 200px;
 }
 
 .seller-content h3,
@@ -344,10 +347,46 @@
   margin: 0;
 }
 
-.btn-dashboard {
+.seller-actions {
+  display: flex;
+  gap: 12px;
   flex-shrink: 0;
-  padding: 12px 24px;
-  font-size: 14px;
+}
+
+.btn-dashboard,
+.btn-edit-dashboard {
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.btn-dashboard {
+  background: linear-gradient(135deg, #667eea 0%, #5a67d8 100%);
+  color: white;
+  border: none;
+}
+
+.btn-dashboard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-edit-dashboard {
+  background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+  color: white;
+  border: none;
+}
+
+.btn-edit-dashboard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(249, 158, 11, 0.4);
 }
 
 /* ===== LOGOUT BUTTON ===== */

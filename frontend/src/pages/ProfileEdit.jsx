@@ -65,39 +65,38 @@ export default function ProfileEdit() {
     let validatedValue = value;
     let error = '';
 
-    // Phone validation: numbers only, max 10 digits
+    // Phone: numbers only, max 10
     if (name === 'phone') {
-      validatedValue = value.replace(/[^0-9]/g, '');
-      if (validatedValue.length > 10) {
-        validatedValue = validatedValue.slice(0, 10);
-      }
-      if (validatedValue.length > 0 && validatedValue.length < 10) {
-        error = 'Phone number must be 10 digits';
+      // Remove any non-digit characters
+      validatedValue = value.replace(/\D/g, '').slice(0, 10);
+      if (value.length > 0 && value !== validatedValue) {
+        error = 'Only digits allowed';
       }
     }
-
-    // Address validation: max 150 characters
-    if (name === 'address') {
+    // Address: max 150
+    else if (name === 'address') {
+      validatedValue = value.slice(0, 150);
       if (value.length > 150) {
-        validatedValue = value.slice(0, 150);
-        error = 'Address cannot exceed 150 characters';
+        error = 'Max 150 characters';
       }
     }
-
-    // Name validation: max 50 characters
-    if (name === 'name') {
+    // Name: max 50
+    else if (name === 'name') {
+      validatedValue = value.slice(0, 50);
       if (value.length > 50) {
-        validatedValue = value.slice(0, 50);
-        error = 'Name cannot exceed 50 characters';
+        error = 'Max 50 characters';
       }
     }
-
-    // City validation: max 50 characters
-    if (name === 'city') {
+    // City: max 50
+    else if (name === 'city') {
+      validatedValue = value.slice(0, 50);
       if (value.length > 50) {
-        validatedValue = value.slice(0, 50);
-        error = 'City cannot exceed 50 characters';
+        error = 'Max 50 characters';
       }
+    }
+    // All other fields (email, businessName, gst)
+    else {
+      validatedValue = value;
     }
 
     setFormData(prev => ({

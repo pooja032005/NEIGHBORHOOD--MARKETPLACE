@@ -41,6 +41,11 @@ const UserSchema = new mongoose.Schema(
     
     // Admin controls
     isBlocked: { type: Boolean, default: false },
+    
+    // Email verification
+    emailVerified: { type: Boolean, default: false },
+    verificationToken: { type: String, default: null },
+    verificationTokenExpiry: { type: Date, default: null },
   },
   { timestamps: true }
 );

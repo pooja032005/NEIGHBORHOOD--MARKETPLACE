@@ -4,6 +4,7 @@ import { Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import VerifyEmail from './pages/VerifyEmail';
 import ItemCreate from './pages/ItemCreate';
 import ItemList from './pages/ItemList';
 import ItemDetail from './pages/ItemDetail';
@@ -109,6 +110,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/verify-email/:token" element={<VerifyEmail />} />
 
           {/* Admin - Protected Routes */}
           <Route

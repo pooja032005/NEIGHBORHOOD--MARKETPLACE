@@ -102,6 +102,8 @@ export default function Register(){
         location,
         role
       });
+      
+      // Auto-login after successful registration
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       navigate('/');

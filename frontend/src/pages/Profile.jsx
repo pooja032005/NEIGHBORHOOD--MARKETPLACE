@@ -38,6 +38,7 @@ export default function Profile(){
 
   const role = (userDetails && userDetails.role) || stored?.role || 'buyer';
   const isSeller = role === 'seller';
+  const isAdmin = role === 'admin';
   const avatarLetter = userDetails?.name?.charAt(0).toUpperCase() || 'U';
 
   if (loading) return <div className="loading">⏳ Loading...</div>;
@@ -53,15 +54,14 @@ export default function Profile(){
           </div>
           <div className="profile-info">
             <h1 className="profile-name">{userDetails.name || 'User'}</h1>
+            {role && (
+              <p className="profile-account-type">{role === 'seller' ? '🏪 Seller' : role === 'admin' ? '👑 Admin' : '👤 Buyer'}</p>
+            )}
             <p className="profile-email">📧 {userDetails.email || 'N/A'}</p>
             {userDetails.phone && <p className="profile-phone">📞 {userDetails.phone}</p>}
             {userDetails.city && <p className="profile-city">📍 {userDetails.city}</p>}
             
-            <div className="role-badge-container">
-              <span className={`role-badge ${role}`}>
-                {role === 'seller' ? '🏪 Seller' : '👤 Buyer'}
-              </span>
-            </div>
+            {/* account type moved under name */}
           </div>
           <Link to="/profile/edit" className="btn-edit">
             ✏️ Edit Profile
@@ -69,98 +69,68 @@ export default function Profile(){
         </div>
       </div>
 
-      {/* ===== YOUR ITEMS SECTION ===== */}
-      <section className="profile-section">
-        <div className="section-header">
-          <h2>📦 Your Items ({myItems.length})</h2>
-          <Link to="/items/create" className="btn-add-new">
-            + Post New Item
-          </Link>
-        </div>
-
-        {myItems.length > 0 ? (
-          <div className="items-grid">
-            {myItems.map(item => (
-              <Link key={item._id} to={`/items/${item._id}`} className="item-card">
-                <div className="item-image">
-                  {item.imageUrl ? (
-                    <img src={item.imageUrl} alt={item.title} />
-                  ) : (
-                    <div className="image-placeholder">📸</div>
-                  )}
-                  <span className="item-category">{item.category}</span>
-                </div>
-                <div className="item-info">
-                  <h3>{item.title}</h3>
-                  <p className="item-price">₹{item.price?.toLocaleString()}</p>
-                  <p className="item-status">
-                    {item.status === 'sold' ? '❌ Sold' : '✓ Available'}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <div className="empty-state">
-            <p>📭 No items posted yet</p>
-            <Link to="/items/create" className="btn-primary-full">
-              Start Selling
-            </Link>
-          </div>
-        )}
-      </section>
-
-      {/* ===== YOUR SERVICES SECTION ===== */}
-      <section className="profile-section">
-        <div className="section-header">
-          <h2>🔧 Your Services ({myServices.length})</h2>
-          <Link to="/services/create" className="btn-add-new">
-            + Offer Service
-          </Link>
-        </div>
-
-        {myServices.length > 0 ? (
-          <div className="services-grid">
-            {myServices.map(service => (
-              <Link key={service._id} to={`/services/${service._id}`} className="service-card">
-                <div className="service-image">
-                  {service.imageUrl ? (
-                    <img src={service.imageUrl} alt={service.title} />
-                  ) : (
-                    <div className="image-placeholder">🔧</div>
-                  )}
-                  <span className="service-category">{service.category}</span>
-                </div>
-                <div className="service-info">
-                  <h3>{service.title}</h3>
-                  <p className="service-price">₹{service.price} {service.priceType}</p>
-                  <p className="service-desc">{service.description?.substring(0, 40)}...</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <div className="empty-state">
-            <p>📭 No services offered yet</p>
-            <Link to="/services/create" className="btn-primary-full">
-              Start Offering Services
-            </Link>
-          </div>
-        )}
-      </section>
+      {/* Items and Services removed from Profile per user request */}
 
       {/* ===== SELLER DASHBOARD LINK ===== */}
       {isSeller && (
         <section className="profile-section">
           <div className="seller-panel">
-            <div className="seller-icon">🏪</div>
-            <div className="seller-content">
-              <h3>Seller Dashboard</h3>
-              <p>Manage your shop and settings</p>
+            <div className="seller-left">
+              <div className="seller-icon">🏪</div>
+              <div className="seller-content">
+                <h3>Seller Dashboard</h3>
+                <p className="seller-sub">Manage your shop, listings and analytics</p>
+              </div>
             </div>
             <div className="seller-actions">
               <Link to="/seller/dashboard" className="btn-dashboard">
-                📊 Dashboard
+                📊 View Dashboard
+              </Link>
+              <Link to="/profile/edit" className="btn-edit-dashboard">
+                ⚙️ Edit Settings
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ===== ADMIN DASHBOARD LINK ===== */}
+      {isAdmin && (
+        <section className="profile-section">
+          <div className="buyer-panel">
+            <div className="buyer-left">
+              <div className="buyer-icon">👑</div>
+              <div className="buyer-content">
+                <h3>Admin Dashboard</h3>
+                <p className="buyer-sub">Monitor marketplace activity and manage platform</p>
+              </div>
+            </div>
+            <div className="buyer-actions">
+              <Link to="/admin/dashboard" className="btn-dashboard">
+                📊 View Dashboard
+              </Link>
+              <Link to="/profile/edit" className="btn-edit-dashboard">
+                ⚙️ Edit Settings
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ===== BUYER DASHBOARD LINK ===== */}
+      {!isSeller && !isAdmin && (
+        <section className="profile-section">
+          <div className="buyer-panel">
+            <div className="buyer-left">
+              <div className="buyer-icon">👤</div>
+              <div className="buyer-content">
+                <h3>Buyer Dashboard</h3>
+                <p className="buyer-sub">View your orders, wishlist and spending</p>
+              </div>
+            </div>
+            <div className="buyer-actions">
+              <Link to="/buyer/dashboard" className="btn-dashboard">
+                📊 View Dashboard
               </Link>
               <Link to="/profile/edit" className="btn-edit-dashboard">
                 ⚙️ Edit Settings

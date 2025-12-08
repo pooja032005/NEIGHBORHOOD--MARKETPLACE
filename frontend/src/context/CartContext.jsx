@@ -157,6 +157,12 @@ export function CartProvider({ children }) {
     return wishlist.length || 0;
   };
 
+  // Clear cart after successful checkout
+  const clearCart = () => {
+    setCart([]);
+    showToast("Cart cleared", 'success');
+  };
+
   // ---------------------------
   // CONTEXT PROVIDER
   // ---------------------------
@@ -174,6 +180,7 @@ export function CartProvider({ children }) {
         removeFromWishlist,
         getCartCount,
         getWishlistCount,
+        clearCart,
       }}
     >
       {children}

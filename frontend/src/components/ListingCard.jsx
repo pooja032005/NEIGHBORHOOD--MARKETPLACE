@@ -5,14 +5,16 @@ import '../styles/listing-card.css';
 
 export default function ListingCard({ item, onAddCart }) {
   const navigate = useNavigate();
-  const { addToCart } = useContext(CartContext);
+  const { addToCart, addToWishlist, removeFromWishlist, wishlist, showToast } = useContext(CartContext);
   const [addingToCart, setAddingToCart] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
   
   const currentUser = (() => {
     try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch (e) { return null; }
   })();
   const isBuyer = currentUser && currentUser.role === 'buyer';
+  
+  // Check if item is already in wishlist
+  const isWishlisted = wishlist.some(w => w.item?._id === item._id);
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
@@ -33,10 +35,19 @@ export default function ListingCard({ item, onAddCart }) {
     navigate(`/items/${item._id}`);
   };
 
-  const handleWishlist = (e) => {
+  const handleWishlist = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsWishlisted(!isWishlisted);
+    
+    try {
+      if (isWishlisted) {
+        await removeFromWishlist(item._id);
+      } else {
+        await addToWishlist(item);
+      }
+    } catch (error) {
+      console.error("Error updating wishlist:", error);
+    }
   };
 
   return (

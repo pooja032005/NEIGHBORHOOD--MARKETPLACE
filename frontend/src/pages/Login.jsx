@@ -135,6 +135,11 @@ export default function Login(){
         <p className="auth-footer">
           Don't have an account? <Link to="/register">Create one</Link>
         </p>
+
+        {/* Admin Login Link */}
+        <p style={{textAlign: 'center', marginTop: '20px', paddingTop: '15px', borderTop: '1px solid #eee', fontSize: '14px', color: '#666'}}>
+          Are you an admin? <Link to="/admin-login" style={{color: '#667eea', fontWeight: '700', textDecoration: 'none'}}>Sign in here</Link>
+        </p>
       </div>
     </div>
   );

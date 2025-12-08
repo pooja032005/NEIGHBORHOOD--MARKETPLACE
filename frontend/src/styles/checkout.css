@@ -119,6 +119,13 @@
   font-weight: 500;
 }
 
+.summary-qty {
+  font-size: 12px;
+  color: var(--primary-blue);
+  margin: 4px 0 0 0;
+  font-weight: 600;
+}
+
 .price-breakdown {
   border-top: 1px solid var(--border-gray);
   padding-top: 16px;
@@ -216,7 +223,8 @@
 
 .form-group input[type="text"],
 .form-group input[type="email"],
-.form-group input[type="tel"] {
+.form-group input[type="tel"],
+.form-group textarea {
   padding: 12px;
   border: 1px solid var(--border-gray);
   border-radius: 6px;
@@ -226,7 +234,8 @@
   background: var(--light-gray);
 }
 
-.form-group input:focus {
+.form-group input:focus,
+.form-group textarea:focus {
   outline: none;
   border-color: var(--primary-blue);
   background: white;
@@ -237,6 +246,46 @@
   background: #f0f0f0;
   color: var(--text-light);
   cursor: not-allowed;
+}
+
+/* Validation Styles */
+.form-group input.input-error,
+.form-group textarea.input-error {
+  border-color: var(--error-red);
+  background: #fff5f5;
+}
+
+.form-group input.input-error:focus,
+.form-group textarea.input-error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  border-color: var(--error-red);
+}
+
+.field-error {
+  display: block;
+  color: var(--error-red);
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 4px;
+  letter-spacing: 0.3px;
+}
+
+.field-success {
+  display: block;
+  color: #22c55e;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 4px;
+  letter-spacing: 0.3px;
+}
+
+.field-warning {
+  display: block;
+  color: var(--warning-orange);
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 4px;
+  letter-spacing: 0.3px;
 }
 
 .checkbox-group {
@@ -263,6 +312,13 @@
   gap: 12px;
 }
 
+.payment-subtitle {
+  font-size: 13px;
+  color: #666;
+  margin: -10px 0 15px 0;
+  font-weight: 500;
+}
+
 .payment-option {
   display: flex;
   align-items: center;
@@ -272,6 +328,26 @@
   cursor: pointer;
   transition: all 0.3s ease;
   background: white;
+  position: relative;
+}
+
+.payment-option.upi-recommended {
+  border: 2px solid #667eea;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+}
+
+.recommended-badge {
+  position: absolute;
+  top: -10px;
+  left: 15px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .payment-option input[type="radio"] {
@@ -280,11 +356,17 @@
   cursor: pointer;
   margin-right: 12px;
   accent-color: var(--primary-blue);
+  flex-shrink: 0;
 }
 
 .payment-option:hover {
   border-color: var(--primary-blue);
   background: linear-gradient(135deg, rgba(40, 116, 240, 0.05) 0%, rgba(30, 136, 229, 0.05) 100%);
+}
+
+.payment-option.upi-recommended:hover {
+  border-color: #667eea;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
 }
 
 .payment-option input[type="radio"]:checked {
@@ -299,7 +381,7 @@
 .payment-label {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   font-size: 14px;
   color: var(--text-dark);
   font-weight: 500;
@@ -307,7 +389,29 @@
 }
 
 .payment-label .icon {
-  font-size: 20px;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.payment-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.payment-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dark);
+  display: block;
+}
+
+.payment-desc {
+  font-size: 12px;
+  color: #999;
+  font-weight: 500;
+  display: block;
 }
 
 /* Action Buttons */

@@ -1,12 +1,14 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { CartContext } from '../context/CartContext';
 import client from '../api/api';
 import '../styles/checkout.css';
 
 export default function Checkout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { item } = location.state || { item: null };
+  const { clearCart } = useContext(CartContext);
+  const { item, cartItems, total: passedTotal } = location.state || { item: null, cartItems: null, total: 0 };
 
   const [formData, setFormData] = useState({
     name: '',
@@ -19,11 +21,17 @@ export default function Checkout() {
     pincode: '',
   });
 
-  const [paymentMethod, setPaymentMethod] = useState('upi');
+  const [paymentMethod, setPaymentMethod] = useState('cod');
   const [saveAddress, setSaveAddress] = useState(true);
   const [loading, setLoading] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderId, setOrderId] = useState('');
+  const [errors, setErrors] = useState({});
+
+  // Determine if we're checking out from cart or single item
+  const isCartCheckout = cartItems && cartItems.length > 0;
+  const itemsToCheckout = isCartCheckout ? cartItems : (item ? [{ item, qty: 1 }] : []);
+  const totalPrice = isCartCheckout ? passedTotal : (item ? item.price : 0);
 
   useEffect(() => {
     // Get user data from localStorage
@@ -37,12 +45,12 @@ export default function Checkout() {
     }
   }, []);
 
-  if (!item) {
+  if (itemsToCheckout.length === 0) {
     return (
       <div className="checkout-error">
-        <p>No item selected. Please try again.</p>
-        <button onClick={() => navigate('/items')} className="btn-back">
-          Back to Items
+        <p>No items to checkout. Please try again.</p>
+        <button onClick={() => navigate('/cart')} className="btn-back">
+          Back to Cart
         </button>
       </div>
     );
@@ -54,34 +62,175 @@ export default function Checkout() {
       ...prev,
       [name]: value
     }));
+
+    // Clear error for this field when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+
+    // Real-time validation
+    if (name === 'phone') {
+      // Allow only digits and limit to 10
+      const digitsOnly = value.replace(/\D/g, '').slice(0, 10);
+      if (digitsOnly !== value) {
+        setFormData(prev => ({
+          ...prev,
+          [name]: digitsOnly
+        }));
+      }
+    }
+
+    if (name === 'area') {
+      // Validate address length
+      if (value.length > 100) {
+        setFormData(prev => ({
+          ...prev,
+          [name]: value.slice(0, 100)
+        }));
+      }
+    }
+  };
+
+  // Validation function
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Name validation
+    if (!formData.name.trim()) {
+      newErrors.name = 'Full name is required';
+    }
+
+    // Phone validation - exactly 10 digits
+    const phoneDigitsOnly = formData.phone.replace(/\D/g, '');
+    if (!formData.phone) {
+      newErrors.phone = 'Phone number is required';
+    } else if (phoneDigitsOnly.length !== 10) {
+      newErrors.phone = 'Phone number must contain exactly 10 digits';
+    } else if (!/^\d+$/.test(phoneDigitsOnly)) {
+      newErrors.phone = 'Phone number should contain only digits';
+    }
+
+    // Address validation - up to 100 characters
+    if (!formData.area.trim()) {
+      newErrors.area = 'Area/Street is required';
+    } else if (formData.area.trim().length > 100) {
+      newErrors.area = 'Address must not exceed 100 characters';
+    }
+
+    // City validation
+    if (!formData.city.trim()) {
+      newErrors.city = 'City is required';
+    }
+
+    // State validation
+    if (!formData.state.trim()) {
+      newErrors.state = 'State/Province is required';
+    }
+
+    // Pincode validation
+    if (!formData.pincode.trim()) {
+      newErrors.pincode = 'Postal code is required';
+    } else if (!/^\d{5,6}$/.test(formData.pincode.trim())) {
+      newErrors.pincode = 'Postal code should be 5-6 digits';
+    }
+
+    // House number validation
+    if (!formData.houseNumber.trim()) {
+      newErrors.houseNumber = 'House/Flat number is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handlePlaceOrder = async () => {
-    // Validation
-    if (!formData.name || !formData.phone || !formData.pincode || !formData.city) {
-      alert('Please fill all required fields');
+    // Validate form
+    if (!validateForm()) {
       return;
     }
 
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await client.post(
-        '/orders/create',
-        {
-          itemId: item._id,
-          quantity: 1,
-          totalPrice: item.price,
-          deliveryAddress: formData,
-          paymentMethod,
-          saveAddress
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      
+      // For cart checkout, create multiple orders; for single item, create one order
+      if (isCartCheckout) {
+        // Create orders for each item in cart
+        const orderPromises = cartItems.map(cartItem =>
+          client.post(
+            '/orders/create',
+            {
+              itemId: cartItem.item._id,
+              quantity: cartItem.qty,
+              totalPrice: cartItem.item.price * cartItem.qty,
+              deliveryAddress: formData,
+              paymentMethod,
+              saveAddress
+            },
+            {
+              headers: { Authorization: `Bearer ${token}` }
+            }
+          )
+        );
 
-      setOrderId(response.data.orderId || response.data._id);
+        const responses = await Promise.all(orderPromises);
+        setOrderId(responses[0].data.orderId || responses[0].data._id);
+      } else {
+        // Single item checkout
+        const response = await client.post(
+          '/orders/create',
+          {
+            itemId: item._id,
+            quantity: 1,
+            totalPrice: item.price,
+            deliveryAddress: formData,
+            paymentMethod,
+            saveAddress
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
+
+        setOrderId(response.data.orderId || response.data._id);
+      }
+
+      // Send notifications (SMS and Email)
+      try {
+        const notificationPayload = {
+          phone: formData.phone,
+          email: user.email,
+          name: formData.name,
+          orderId: setOrderId.toString(),
+          total: isCartCheckout ? passedTotal : item.price,
+          paymentMethod: paymentMethod.toUpperCase(),
+          address: formData.area,
+          city: formData.city
+        };
+
+        // Send SMS notification
+        await client.post('/notifications/send-sms', notificationPayload, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        // Send Email notification
+        await client.post('/notifications/send-email', notificationPayload, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      } catch (notifyErr) {
+        console.warn('Notification failed:', notifyErr);
+        // Don't block order placement if notifications fail
+      }
+
+      // Clear cart after successful order
+      if (isCartCheckout) {
+        clearCart();
+      }
+
       setOrderPlaced(true);
     } catch (error) {
       console.error('Order creation failed:', error);
@@ -124,21 +273,24 @@ export default function Checkout() {
         {/* LEFT: Order Summary */}
         <div className="checkout-left">
           <div className="order-summary">
-            <h3>Order Summary</h3>
+            <h3>Order Summary ({itemsToCheckout.length} item{itemsToCheckout.length !== 1 ? 's' : ''})</h3>
             
-            <div className="summary-item">
-              <img src={item.imageUrl} alt={item.title} className="summary-image" />
-              <div className="summary-details">
-                <h4>{item.title}</h4>
-                <p className="summary-owner">By {item.owner?.name || 'Unknown'}</p>
-                <p className="summary-location">📍 {item.location}</p>
+            {itemsToCheckout.map((cartItem, idx) => (
+              <div key={idx} className="summary-item">
+                <img src={cartItem.item.imageUrl} alt={cartItem.item.title} className="summary-image" />
+                <div className="summary-details">
+                  <h4>{cartItem.item.title}</h4>
+                  <p className="summary-owner">By {cartItem.item.owner?.name || 'Unknown'}</p>
+                  <p className="summary-location">📍 {cartItem.item.location}</p>
+                  {cartItem.qty > 1 && <p className="summary-qty">Qty: {cartItem.qty}</p>}
+                </div>
               </div>
-            </div>
+            ))}
 
             <div className="price-breakdown">
               <div className="price-row">
-                <span>Price</span>
-                <span>₹{item.price.toLocaleString()}</span>
+                <span>Subtotal</span>
+                <span>₹{totalPrice.toLocaleString()}</span>
               </div>
               <div className="price-row">
                 <span>Delivery Charges</span>
@@ -150,7 +302,7 @@ export default function Checkout() {
               </div>
               <div className="price-row total">
                 <span>Total Amount</span>
-                <span>₹{item.price.toLocaleString()}</span>
+                <span>₹{totalPrice.toLocaleString()}</span>
               </div>
             </div>
           </div>
@@ -173,7 +325,9 @@ export default function Checkout() {
                     onChange={handleInputChange}
                     placeholder="John Doe"
                     required
+                    className={errors.name ? 'input-error' : ''}
                   />
+                  {errors.name && <span className="field-error">{errors.name}</span>}
                 </div>
                 <div className="form-group">
                   <label>Phone Number *</label>
@@ -184,7 +338,13 @@ export default function Checkout() {
                     onChange={handleInputChange}
                     placeholder="9876543210"
                     required
+                    maxLength="10"
+                    className={errors.phone ? 'input-error' : ''}
                   />
+                  {errors.phone && <span className="field-error">{errors.phone}</span>}
+                  {formData.phone && !errors.phone && (
+                    <span className="field-success">{formData.phone.length}/10 digits ✓</span>
+                  )}
                 </div>
               </div>
 
@@ -209,21 +369,29 @@ export default function Checkout() {
                     onChange={handleInputChange}
                     placeholder="123"
                     required
+                    className={errors.houseNumber ? 'input-error' : ''}
                   />
+                  {errors.houseNumber && <span className="field-error">{errors.houseNumber}</span>}
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Area/Street *</label>
-                  <input
-                    type="text"
+                  <label>Area/Street * (Max 100 characters)</label>
+                  <textarea
                     name="area"
                     value={formData.area}
                     onChange={handleInputChange}
-                    placeholder="MG Road"
+                    placeholder="Enter detailed street address (e.g., Near XYZ Hospital, ABC Street, MG Road)"
                     required
+                    maxLength="100"
+                    className={errors.area ? 'input-error' : ''}
+                    rows="3"
                   />
+                  {errors.area && <span className="field-error">{errors.area}</span>}
+                  {formData.area && !errors.area && (
+                    <span className="field-success">{formData.area.length}/100 characters ✓</span>
+                  )}
                 </div>
                 <div className="form-group">
                   <label>City *</label>
@@ -234,7 +402,9 @@ export default function Checkout() {
                     onChange={handleInputChange}
                     placeholder="Bangalore"
                     required
+                    className={errors.city ? 'input-error' : ''}
                   />
+                  {errors.city && <span className="field-error">{errors.city}</span>}
                 </div>
               </div>
 
@@ -248,10 +418,12 @@ export default function Checkout() {
                     onChange={handleInputChange}
                     placeholder="Karnataka"
                     required
+                    className={errors.state ? 'input-error' : ''}
                   />
+                  {errors.state && <span className="field-error">{errors.state}</span>}
                 </div>
                 <div className="form-group">
-                  <label>Postal Code *</label>
+                  <label>Postal Code * (5-6 digits)</label>
                   <input
                     type="text"
                     name="pincode"
@@ -259,7 +431,9 @@ export default function Checkout() {
                     onChange={handleInputChange}
                     placeholder="560001"
                     required
+                    className={errors.pincode ? 'input-error' : ''}
                   />
+                  {errors.pincode && <span className="field-error">{errors.pincode}</span>}
                 </div>
               </div>
 
@@ -277,9 +451,11 @@ export default function Checkout() {
           {/* Payment Method */}
           <section className="checkout-section">
             <h3>Payment Method</h3>
+            <p className="payment-subtitle">Choose how you want to pay</p>
             
             <div className="payment-options">
-              <label className="payment-option">
+              <label className="payment-option upi-recommended">
+                <div className="recommended-badge">Recommended</div>
                 <input
                   type="radio"
                   name="payment"
@@ -289,7 +465,10 @@ export default function Checkout() {
                 />
                 <span className="payment-label">
                   <span className="icon">📱</span>
-                  <span>UPI</span>
+                  <div className="payment-text">
+                    <span className="payment-title">UPI Payment</span>
+                    <span className="payment-desc">Direct payment via UPI (Fast & Secure)</span>
+                  </div>
                 </span>
               </label>
 
@@ -303,7 +482,10 @@ export default function Checkout() {
                 />
                 <span className="payment-label">
                   <span className="icon">💳</span>
-                  <span>Credit/Debit Card</span>
+                  <div className="payment-text">
+                    <span className="payment-title">Credit/Debit Card</span>
+                    <span className="payment-desc">Visa, MasterCard, Rupay</span>
+                  </div>
                 </span>
               </label>
 
@@ -317,7 +499,10 @@ export default function Checkout() {
                 />
                 <span className="payment-label">
                   <span className="icon">💵</span>
-                  <span>Cash on Delivery</span>
+                  <div className="payment-text">
+                    <span className="payment-title">Cash on Delivery</span>
+                    <span className="payment-desc">Pay when you receive the item</span>
+                  </div>
                 </span>
               </label>
             </div>

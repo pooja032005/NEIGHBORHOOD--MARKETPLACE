@@ -18,6 +18,7 @@ import ChatsPage from './pages/Chats';
 import ChatWindowPage from './pages/ChatWindowPage';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminLogin from './pages/AdminLogin';
+import AdminManagement from './pages/AdminManagement';
 import ManageUsers from './pages/admin/ManageUsers';
 import ManageItems from './pages/admin/ManageItems';
 import ManageServices from './pages/admin/ManageServices';
@@ -41,6 +42,7 @@ import SellerOrders from './pages/SellerOrders';
 import SellerAnalytics from './pages/SellerAnalytics';
 import SellerStatusCheck from './pages/SellerStatusCheck';
 import BuyerDashboard from './pages/BuyerDashboard';
+import BuyerDashboardSettings from './pages/BuyerDashboardSettings';
 import OrderDetail from './pages/OrderDetail';
 
 function App() {
@@ -98,6 +100,7 @@ function App() {
 
           {/* Buyer Dashboards */}
           <Route path="/buyer/dashboard" element={<BuyerDashboard />} />
+          <Route path="/buyer/dashboard/settings" element={<BuyerDashboardSettings />} />
 
           {/* Home V2 (Amazon-style) */}
           <Route path="/home-v2" element={<HomeV2 />} />
@@ -113,6 +116,14 @@ function App() {
             element={
               <AdminProtectedRoute>
                 <AdminDashboard />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/management"
+            element={
+              <AdminProtectedRoute>
+                <AdminManagement />
               </AdminProtectedRoute>
             }
           />

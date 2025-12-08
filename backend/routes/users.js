@@ -1,7 +1,7 @@
 // backend/routes/users.js
 const express = require("express");
 const router = express.Router();
-const { getProfile, updateProfile, changeRole, getFeaturedItem, getWishlistCount, makeUserAdmin, getAllUsers } = require("../controllers/userController");
+const { getProfile, updateProfile, changeRole, getFeaturedItem, getWishlistCount, makeUserAdmin, getAllUsers, getSellers } = require("../controllers/userController");
 const { auth, requireAdmin } = require("../utils/authMiddleware");
 
 // USER PROFILE ROUTES
@@ -14,6 +14,9 @@ router.get("/wishlist/count", auth, getWishlistCount);
 
 // FEATURED ITEM ROUTE (NO AUTH REQUIRED - Public)
 router.get("/featured-item", getFeaturedItem);
+
+// SELLERS ROUTE (PUBLIC - anyone can view sellers)
+router.get("/sellers", getSellers);
 
 // ADMIN ROUTES (admin only)
 router.post("/admin/make-admin", auth, requireAdmin, makeUserAdmin);

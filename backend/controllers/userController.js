@@ -127,6 +127,16 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
+// GET all sellers
+exports.getSellers = async (req, res) => {
+  try {
+    const sellers = await User.find({ role: 'seller' }).select('-password');
+    res.json(sellers);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching sellers", error: err.message });
+  }
+};
+
 exports.getFeaturedItem = async (req, res) => {
   try {
     const featuredItem = await Item.findOne({ isFeatured: true }).populate('owner', 'name email phone');
@@ -140,3 +150,4 @@ exports.getFeaturedItem = async (req, res) => {
     res.status(500).json({ message: "Error fetching featured item", error: err.message });
   }
 };
+

@@ -59,9 +59,81 @@ exports.getTopProducts = async (req, res) => {
       },
     ]);
 
+    // Get all items with view counts
+    const allItems = await ProductView.aggregate([
+      { $match: { productType: "Item" } },
+      { $group: { _id: "$product", viewCount: { $sum: 1 } } },
+      { $sort: { viewCount: -1 } },
+      {
+        $lookup: {
+          from: "items",
+          localField: "_id",
+          foreignField: "_id",
+          as: "itemDetails",
+        },
+      },
+      { $unwind: "$itemDetails" },
+      {
+        $lookup: {
+          from: "users",
+          localField: "itemDetails.sellerId",
+          foreignField: "_id",
+          as: "sellerDetails",
+        },
+      },
+      { $unwind: { path: "$sellerDetails", preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          _id: 1,
+          title: "$itemDetails.title",
+          price: "$itemDetails.price",
+          category: "$itemDetails.category",
+          viewCount: 1,
+          sellerId: { name: "$sellerDetails.name", _id: "$sellerDetails._id" },
+        },
+      },
+    ]);
+
+    // Get all services with view counts
+    const allServices = await ProductView.aggregate([
+      { $match: { productType: "Service" } },
+      { $group: { _id: "$product", viewCount: { $sum: 1 } } },
+      { $sort: { viewCount: -1 } },
+      {
+        $lookup: {
+          from: "services",
+          localField: "_id",
+          foreignField: "_id",
+          as: "serviceDetails",
+        },
+      },
+      { $unwind: "$serviceDetails" },
+      {
+        $lookup: {
+          from: "users",
+          localField: "serviceDetails.sellerId",
+          foreignField: "_id",
+          as: "sellerDetails",
+        },
+      },
+      { $unwind: { path: "$sellerDetails", preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          _id: 1,
+          title: "$serviceDetails.title",
+          price: "$serviceDetails.price",
+          category: "$serviceDetails.category",
+          viewCount: 1,
+          sellerId: { name: "$sellerDetails.name", _id: "$sellerDetails._id" },
+        },
+      },
+    ]);
+
     res.json({
       topItems,
       topServices,
+      allItems,
+      allServices,
     });
   } catch (err) {
     res.status(500).json({ message: "Error fetching top products", error: err.message });

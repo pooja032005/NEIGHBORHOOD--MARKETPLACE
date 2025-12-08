@@ -172,17 +172,17 @@ export default function Register(){
 
           <div className="form-group">
             <label>Account Type</label>
-            <div className="role-columns" style={{display: 'flex', gap: '12px'}}>
-              <div className={`role-column ${role === 'buyer' ? 'active' : ''}`} onClick={() => setRole('buyer')} style={{flex:1, padding: '12px', borderRadius: '8px', border: role === 'buyer' ? '2px solid #4a90e2' : '1px solid #ddd', cursor: 'pointer'}}>
-                <div style={{fontSize: '22px'}}>👤</div>
-                <div style={{fontWeight:600}}>Buyer</div>
-                <div style={{fontSize:12, color:'#666'}}>Browse & buy items</div>
-              </div>
-              <div className={`role-column ${role === 'seller' ? 'active' : ''}`} onClick={() => setRole('seller')} style={{flex:1, padding: '12px', borderRadius: '8px', border: role === 'seller' ? '2px solid #4a90e2' : '1px solid #ddd', cursor: 'pointer'}}>
-                <div style={{fontSize: '22px'}}>🏪</div>
-                <div style={{fontWeight:600}}>Seller</div>
-                <div style={{fontSize:12, color:'#666'}}>Post items & services</div>
-              </div>
+            <div style={{display: 'flex', gap: '12px', alignItems: 'center', marginTop: 8}}>
+              <label style={{display:'flex', alignItems:'center', gap:8, cursor:'pointer'}}>
+                <input type="radio" name="role" value="buyer" checked={role === 'buyer'} onChange={() => setRole('buyer')} />
+                <span style={{fontWeight:700}}>Buyer</span>
+                <small style={{marginLeft:6, color:'#666'}}>Browse & buy</small>
+              </label>
+              <label style={{display:'flex', alignItems:'center', gap:8, cursor:'pointer'}}>
+                <input type="radio" name="role" value="seller" checked={role === 'seller'} onChange={() => setRole('seller')} />
+                <span style={{fontWeight:700}}>Seller</span>
+                <small style={{marginLeft:6, color:'#666'}}>Post items & services</small>
+              </label>
             </div>
           </div>
 

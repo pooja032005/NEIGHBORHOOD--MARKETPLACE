@@ -82,15 +82,17 @@ export default function OrderSuccess() {
 
         {/* What's Next */}
         <div className="whats-next">
-          <h3>What's Next?</h3>
+          <h3>📬 What's Next?</h3>
           <ol>
-            <li>You'll receive a confirmation SMS on {orderDetails?.address?.phone}</li>
-            <li>Seller will prepare and ship your order</li>
-            <li>You'll receive tracking details via email</li>
-            <li>
-              Receive your order and complete the delivery process
-            </li>
+            <li>✓ Confirmation SMS sent to your phone ({orderDetails?.address?.phone || '****'})</li>
+            <li>✓ Confirmation email sent to your registered email</li>
+            <li>🔄 Seller will prepare and ship your order</li>
+            <li>📧 You'll receive tracking details via email and SMS</li>
+            <li>📦 Receive your order and complete the delivery process</li>
           </ol>
+          <p className="notification-info">
+            💡 Keep your phone and email handy for order updates. We'll notify you at every step!
+          </p>
         </div>
 
         {/* Action Buttons */}

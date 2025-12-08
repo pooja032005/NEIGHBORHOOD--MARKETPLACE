@@ -8,7 +8,7 @@ export default function ItemDetails(){
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useContext(CartContext);
-  const { showToast } = useContext(CartContext);
+  const { showToast: contextShowToast } = useContext(CartContext);
   const currentUser = (() => {
     try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch (e) { return null; }
   })();
@@ -27,7 +27,7 @@ export default function ItemDetails(){
     });
   }, [id, navigate]);
 
-  const showToast = (message) => {
+  const displayToast = (message) => {
     setToast({ show: true, message });
     setTimeout(() => setToast({ show: false, message: '' }), 3000);
   };
@@ -36,9 +36,9 @@ export default function ItemDetails(){
     setAddingToCart(true);
     try {
       await addToCart(item, 1);
-      showToast('✓ Added to cart!');
+      displayToast('✓ Added to cart!');
     } catch (err) {
-      showToast('Failed to add to cart');
+      displayToast('Failed to add to cart');
     } finally {
       setAddingToCart(false);
     }

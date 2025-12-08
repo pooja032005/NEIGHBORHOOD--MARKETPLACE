@@ -9,9 +9,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const { cart, wishlist } = useContext(CartContext);
   const [showMiniCart, setShowMiniCart] = useState(false);
-  const [wishlistCount, setWishlistCount] = useState(0);
   const [chatUnread, setChatUnread] = useState(0);
-  const [loadingWishlist, setLoadingWishlist] = useState(false);
 
   const [user, setUser] = useState(() => {
     try {
@@ -22,16 +20,14 @@ export default function Navbar() {
     }
   });
 
-  // Load wishlist count when user logs in or wishlist changes
+  // Load chat unread when user logs in
   useEffect(() => {
-    // Recompute current user from state and only run when wishlist or user state changes
     if (user && localStorage.getItem('token')) {
-      loadWishlistCount();
       loadChatUnread();
     } else {
-      setWishlistCount(0);
+      setChatUnread(0);
     }
-  }, [wishlist, user]);
+  }, [user]);
 
   const loadChatUnread = async () => {
     if (!user || !localStorage.getItem('token')) return;
@@ -43,22 +39,6 @@ export default function Navbar() {
     } catch (err) {
       console.error('Error loading chat unread', err);
       setChatUnread(0);
-    }
-  };
-
-  const loadWishlistCount = async () => {
-    if (!user || !localStorage.getItem('token')) return;
-    
-    try {
-      setLoadingWishlist(true);
-      const res = await client.get("/users/wishlist/count");
-      setWishlistCount(res.data.count || 0);
-    } catch (err) {
-      console.error("Error loading wishlist count:", err);
-      // Fallback to wishlist.length from context
-      setWishlistCount(wishlist.length || 0);
-    } finally {
-      setLoadingWishlist(false);
     }
   };
 
@@ -105,7 +85,7 @@ export default function Navbar() {
 
 
         <Link to="/wishlist" style={styles.link}>
-  Wishlist ❤️ <span style={styles.badge}>{wishlistCount}</span>
+  Wishlist ❤️ <span style={styles.badge}>{wishlist.length}</span>
         </Link>
 
         {user ? (
@@ -136,6 +116,9 @@ export default function Navbar() {
         ) : (
           <>
             <Link to="/login" style={styles.link}>Login</Link>
+
+            {/* Admin Login Link */}
+            <Link to="/admin-login" style={{...styles.link, color: '#667eea', fontWeight: '700'}}>🔐 Admin Login</Link>
 
             {/* ✔ FIXED register button style merge */}
             <Link

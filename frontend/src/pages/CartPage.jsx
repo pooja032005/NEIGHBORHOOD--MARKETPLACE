@@ -1,11 +1,22 @@
 import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
 import "./cart.css";
 
 export default function CartPage() {
+  const navigate = useNavigate();
   const { cart, removeFromCart } = useContext(CartContext);
 
   const total = cart.reduce((a, b) => a + (b.item.price * b.qty), 0);
+
+  const handleProceedToCheckout = () => {
+    if (cart.length === 0) {
+      alert("Your cart is empty. Please add items first.");
+      return;
+    }
+    // Navigate to checkout page with cart items
+    navigate("/checkout", { state: { cartItems: cart, total } });
+  };
 
   return (
     <div className="cart-container">
@@ -35,7 +46,7 @@ export default function CartPage() {
 
           <div className="cart-summary">
             <h2>Total: ₹{total}</h2>
-            <button className="checkout-btn">Proceed to Checkout</button>
+            <button className="checkout-btn" onClick={handleProceedToCheckout}>Proceed to Checkout</button>
           </div>
         </>
       )}

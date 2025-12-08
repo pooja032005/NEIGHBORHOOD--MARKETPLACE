@@ -31,6 +31,7 @@ const userActionsRoutes = require("./routes/userActions");
 const orderRoutes = require("./routes/orders");
 const sellerRoutes = require("./routes/seller");
 const adminAnalyticsRoutes = require("./routes/adminAnalytics");
+const notificationRoutes = require("./routes/notifications");
 
 app.use("/api/items", itemRoutes);
 app.use("/api/services", serviceRoutes);
@@ -44,6 +45,7 @@ app.use("/api/bookings", bookingRoutes);
 app.use("/api/user-actions", userActionsRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // 👉 CREATE HTTP SERVER (REQUIRED FOR SOCKET.IO)
 const server = http.createServer(app);

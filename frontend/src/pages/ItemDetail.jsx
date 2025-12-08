@@ -9,12 +9,13 @@ import "../styles/itemdetail.css";
 export default function ItemDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart, showToast } = useContext(CartContext);
+  const { addToCart, addToWishlist, removeFromWishlist, wishlist, showToast } = useContext(CartContext);
 
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [similarItems, setSimilarItems] = useState([]);
   const [cartLoading, setCartLoading] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [orderLoading, setOrderLoading] = useState(false);
@@ -35,6 +36,9 @@ export default function ItemDetail() {
     try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch (e) { return null; }
   })();
   const isBuyer = currentUser && currentUser.role === 'buyer';
+  
+  // Check if item is in wishlist
+  const isWishlisted = wishlist.some(w => w.item?._id === item?._id);
 
   useEffect(() => {
     fetchItemDetail();
@@ -87,6 +91,22 @@ export default function ItemDetail() {
       showToast("Failed to add to cart", "error");
     } finally {
       setCartLoading(false);
+    }
+  };
+
+  const handleWishlist = async () => {
+    try {
+      setWishlistLoading(true);
+      if (isWishlisted) {
+        await removeFromWishlist(item._id);
+      } else {
+        await addToWishlist(item);
+      }
+    } catch (error) {
+      console.error("Error updating wishlist:", error);
+      showToast("Failed to update wishlist", "error");
+    } finally {
+      setWishlistLoading(false);
     }
   };
 
@@ -238,6 +258,14 @@ export default function ItemDetail() {
                   onClick={() => setShowOrderModal(true)}
                 >
                   💳 Place Order
+                </button>
+                <button
+                  className={`btn-wishlist ${isWishlisted ? 'active' : ''}`}
+                  onClick={handleWishlist}
+                  disabled={wishlistLoading}
+                  title={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+                >
+                  {wishlistLoading ? '⏳' : (isWishlisted ? '❤️' : '🤍')} {isWishlisted ? 'Wishlisted' : 'Wishlist'}
                 </button>
               </>
             ) : (

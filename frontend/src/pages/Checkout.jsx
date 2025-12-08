@@ -157,6 +157,8 @@ export default function Checkout() {
       const token = localStorage.getItem('token');
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       
+      let createdOrderId = '';
+      
       // For cart checkout, create multiple orders; for single item, create one order
       if (isCartCheckout) {
         // Create orders for each item in cart
@@ -178,7 +180,8 @@ export default function Checkout() {
         );
 
         const responses = await Promise.all(orderPromises);
-        setOrderId(responses[0].data.orderId || responses[0].data._id);
+        createdOrderId = responses[0].data.orderId || responses[0].data._id;
+        setOrderId(createdOrderId);
       } else {
         // Single item checkout
         const response = await client.post(
@@ -196,7 +199,8 @@ export default function Checkout() {
           }
         );
 
-        setOrderId(response.data.orderId || response.data._id);
+        createdOrderId = response.data.orderId || response.data._id;
+        setOrderId(createdOrderId);
       }
 
       // Send notifications (SMS and Email)
@@ -205,7 +209,7 @@ export default function Checkout() {
           phone: formData.phone,
           email: user.email,
           name: formData.name,
-          orderId: setOrderId.toString(),
+          orderId: createdOrderId,
           total: isCartCheckout ? passedTotal : item.price,
           paymentMethod: paymentMethod.toUpperCase(),
           address: formData.area,
@@ -234,7 +238,8 @@ export default function Checkout() {
       setOrderPlaced(true);
     } catch (error) {
       console.error('Order creation failed:', error);
-      alert('Failed to place order. Please try again.');
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to place order';
+      alert(`Error: ${errorMsg}\n\nPlease make sure you are logged in and try again.`);
     } finally {
       setLoading(false);
     }

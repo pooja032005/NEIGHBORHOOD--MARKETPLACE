@@ -35,11 +35,15 @@ export default function BuyerDashboard() {
         client.get('/user-actions/cart', { headers: { Authorization: `Bearer ${token}` } }),
       ]);
 
-      setOrders(ordersRes.data || []);
+      setOrders(ordersRes.data?.orders || ordersRes.data || []);
       setWishlist(wishlistRes.data?.wishlist || []);
       setCart(cartRes.data?.cart || []);
     } catch (err) {
       console.error('Error fetching data:', err);
+      // Set empty arrays on error so dashboard still shows
+      setOrders([]);
+      setWishlist([]);
+      setCart([]);
     } finally {
       setLoading(false);
     }

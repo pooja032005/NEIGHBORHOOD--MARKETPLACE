@@ -45,6 +45,7 @@ import SellerStatusCheck from './pages/SellerStatusCheck';
 import BuyerDashboard from './pages/BuyerDashboard';
 import BuyerDashboardSettings from './pages/BuyerDashboardSettings';
 import OrderDetail from './pages/OrderDetail';
+import Orders from './pages/Orders';
 
 function App() {
   return (
@@ -88,6 +89,7 @@ function App() {
           <Route path="/edit-profile" element={<EditProfile />} />
 
           {/* Orders */}
+          <Route path="/orders" element={<Orders />} />
           <Route path="/orders/:id" element={<OrderDetail />} />
 
           {/* Seller Dashboards */}

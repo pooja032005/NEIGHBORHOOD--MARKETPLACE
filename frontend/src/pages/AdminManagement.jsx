@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import client from '../api/api';
+import ChatButton from '../components/ChatButton';
 import '../styles/admin-management.css';
 
 export default function AdminManagement() {
@@ -140,18 +141,37 @@ export default function AdminManagement() {
   };
 
   const handleDeleteItem = async (itemId) => {
-    if (window.confirm('Delete this item?')) {
-      try {
-        setProcessingId(itemId);
-        const token = localStorage.getItem('token');
-        await client.delete(`/admin-management/items/${itemId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        fetchAllData();
-      } catch (err) {
-        alert('Error deleting item: ' + (err.response?.data?.message || 'Unknown error'));
-      } finally {
-        setProcessingId(null);
+    // Find the item by id and check if it matches 'laptop' and owner is 'Unknown'
+    const item = items.find(i => i._id === itemId);
+    if (item && item.title.toLowerCase() === 'laptop' && (item.sellerId?.name === 'Unknown' || item.owner?.name === 'Unknown')) {
+      if (window.confirm('Delete the item "laptop" by Unknown user?')) {
+        try {
+          setProcessingId(itemId);
+          const token = localStorage.getItem('token');
+          await client.delete(`/admin-management/items/${itemId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          fetchAllData();
+        } catch (err) {
+          alert('Error deleting item: ' + (err.response?.data?.message || 'Unknown error'));
+        } finally {
+          setProcessingId(null);
+        }
+      }
+    } else {
+      if (window.confirm('Delete this item?')) {
+        try {
+          setProcessingId(itemId);
+          const token = localStorage.getItem('token');
+          await client.delete(`/admin-management/items/${itemId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          fetchAllData();
+        } catch (err) {
+          alert('Error deleting item: ' + (err.response?.data?.message || 'Unknown error'));
+        } finally {
+          setProcessingId(null);
+        }
       }
     }
   };
@@ -632,6 +652,7 @@ export default function AdminManagement() {
                         <th>Status</th>
                         <th>Date Added</th>
                         <th>Views</th>
+                        <th>Chat</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -643,6 +664,11 @@ export default function AdminManagement() {
                           <td><span className="badge badge-approved">✅ Approved</span></td>
                           <td>{new Date(item.createdAt).toLocaleDateString()}</td>
                           <td><span style={{background: '#e8f5e9', padding: '4px 8px', borderRadius: '4px'}}>👁️ {item.viewCount || 0}</span></td>
+                          <td>
+                            <ChatButton userId={selectedSeller._id} itemId={item._id}>
+                              💬 Chat
+                            </ChatButton>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -665,6 +691,7 @@ export default function AdminManagement() {
                         <th>Status</th>
                         <th>Date Added</th>
                         <th>Views</th>
+                        <th>Chat</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -676,6 +703,11 @@ export default function AdminManagement() {
                           <td><span className="badge badge-approved">✅ Approved</span></td>
                           <td>{new Date(service.createdAt).toLocaleDateString()}</td>
                           <td><span style={{background: '#f3e5f5', padding: '4px 8px', borderRadius: '4px'}}>👁️ {service.viewCount || 0}</span></td>
+                          <td>
+                            <ChatButton userId={selectedSeller._id} serviceId={service._id}>
+                              💬 Chat
+                            </ChatButton>
+                          </td>
                         </tr>
                       ))}
                     </tbody>

@@ -32,7 +32,10 @@ export default function Navbar() {
   const loadChatUnread = async () => {
     if (!user || !localStorage.getItem('token')) return;
     try {
-      const res = await client.get('/chat');
+      const token = localStorage.getItem('token');
+      const res = await client.get('/chat', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       const chats = res.data || [];
       const total = chats.reduce((s, c) => s + (c.unread || 0), 0);
       setChatUnread(total);
@@ -91,7 +94,6 @@ export default function Navbar() {
         {user ? (
           <>
             <Link to="/profile" style={styles.link}>Profile</Link>
-            <Link to="/chats" style={styles.link}>Chats 💬 <span style={styles.badge}>{chatUnread}</span></Link>
             
             {/* Role-based dashboard links */}
             {user.role === 'seller' && (

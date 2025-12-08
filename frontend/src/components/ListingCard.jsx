@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
+import ChatButton from './ChatButton';
 import '../styles/listing-card.css';
 
 export default function ListingCard({ item, onAddCart }) {
@@ -115,9 +116,17 @@ export default function ListingCard({ item, onAddCart }) {
               >
                 ⚡ Buy
               </button>
+              <ChatButton userId={item.owner?._id} itemId={item._id}>
+                💬 Message seller
+              </ChatButton>
             </>
           ) : (
-            <div style={{color: '#a00', padding: '6px'}}>Only buyers can purchase. Register/login as a buyer.</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%' }}>
+              <div style={{color: '#a00', padding: '6px 0'}}>Only buyers can purchase. Register/login as a buyer.</div>
+              <ChatButton userId={item.owner?._id} itemId={item._id}>
+                💬 Message seller
+              </ChatButton>
+            </div>
           )}
         </div>
       </div>

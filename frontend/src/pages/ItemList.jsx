@@ -165,9 +165,9 @@ export default function ItemList(){
 
           {loading ? (
             <div className="loading-spinner">⏳ Loading items...</div>
-          ) : items.length > 0 ? (
+          ) : items.filter(item => item.owner?.name !== 'Unknown').length > 0 ? (
             <div className="items-grid">
-              {items.map(item => (
+              {items.filter(item => item.owner?.name !== 'Unknown').map(item => (
                 <ListingCard 
                   key={item._id} 
                   item={item} 

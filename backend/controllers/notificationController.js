@@ -137,3 +137,61 @@ exports.notifySeller = async (req, res) => {
     });
   }
 };
+
+// Helper: send seller notification for chat messages (used internally by chat controller)
+async function sendSellerChatNotification({ sellerEmail, sellerPhone, buyerName, messagePreview, productTitle, productType }) {
+  // Feature flag to disable globally if needed
+  if (process.env.ENABLE_CHAT_NOTIFICATIONS === 'false') {
+    return { sent: false, reason: 'disabled' };
+  }
+
+  const preview = messagePreview || 'New message received';
+  const productLabel = productTitle ? ` about ${productTitle}` : '';
+  const subject = 'New buyer question on Neighborhood Marketplace';
+  const bodyText = `You have a new message from ${buyerName || 'Buyer'}${productLabel}: ${preview}${productType ? ` (Type: ${productType})` : ''}`;
+
+  // EMAIL via Nodemailer (optional)
+  if (sellerEmail && process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
+    try {
+      const nodemailer = require('nodemailer');
+      const transporter = nodemailer.createTransport({
+        service: process.env.EMAIL_SERVICE || 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD
+        }
+      });
+
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: sellerEmail,
+        subject,
+        text: bodyText
+      });
+    } catch (err) {
+      console.error('Email send error (chat notify):', err.message);
+    }
+  }
+
+  // SMS via Twilio (optional)
+  if (sellerPhone && /^\d{10}$/.test(String(sellerPhone)) && process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_PHONE_NUMBER) {
+    try {
+      const twilio = require('twilio');
+      const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+      await client.messages.create({
+        body: bodyText,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: '+91' + String(sellerPhone)
+      });
+    } catch (err) {
+      console.error('SMS send error (chat notify):', err.message);
+    }
+  }
+
+  // Always log for traceability
+  console.log(`[CHAT NOTIFY] Seller email: ${sellerEmail || 'N/A'} | phone: ${sellerPhone || 'N/A'} | Buyer: ${buyerName || 'Buyer'} | Product: ${productTitle || 'N/A'} | Preview: ${preview}`);
+
+  return { sent: true };
+}
+
+exports.sendSellerChatNotification = sendSellerChatNotification;

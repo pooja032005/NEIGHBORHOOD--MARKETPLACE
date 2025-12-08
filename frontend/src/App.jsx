@@ -46,6 +46,7 @@ import BuyerDashboard from './pages/BuyerDashboard';
 import BuyerDashboardSettings from './pages/BuyerDashboardSettings';
 import OrderDetail from './pages/OrderDetail';
 import Orders from './pages/Orders';
+import ForceLogout from './pages/ForceLogout';
 
 function App() {
   return (
@@ -113,6 +114,7 @@ function App() {
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/register" element={<Register />} />
           <Route path="/verify-email/:token" element={<VerifyEmail />} />
+          <Route path="/force-logout" element={<ForceLogout />} />
 
           {/* Admin - Protected Routes */}
           <Route

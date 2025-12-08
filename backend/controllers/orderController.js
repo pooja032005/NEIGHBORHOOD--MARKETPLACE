@@ -9,6 +9,13 @@ const ProductAnalytics = require('../models/ProductAnalytics');
 exports.createOrder = async (req, res) => {
   try {
     const { itemId, quantity = 1, totalPrice, deliveryAddress, paymentMethod, saveAddress } = req.body;
+    
+    // Check if user is authenticated
+    if (!req.user || !req.user._id) {
+      console.error('Order creation error: User not authenticated', req.user);
+      return res.status(401).json({ message: 'User not authenticated. Please login again.' });
+    }
+    
     const userId = req.user._id;
 
     // Validate item exists

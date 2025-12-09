@@ -68,6 +68,17 @@
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
 }
 
+.stat-card.clickable {
+  cursor: pointer;
+}
+
+.stat-card.clickable:hover {
+  background: linear-gradient(135deg, #f5f7ff, #f0f4ff);
+  border-left-color: #764ba2;
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 12px 35px rgba(102, 126, 234, 0.25);
+}
+
 .stat-number {
   font-size: 32px;
   font-weight: 800;
@@ -170,6 +181,56 @@
 
 .btn-edit:hover {
   background: #764ba2;
+  transform: translateY(-2px);
+}
+
+/* Highlighted columns */
+.products-table td.highlight {
+  background: #fff3cd;
+  font-weight: 700;
+  color: #d39e00;
+  padding: 12px 15px;
+  border-radius: 4px;
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.pending {
+  background: #fff3cd;
+  color: #d39e00;
+}
+
+.status-badge.confirmed {
+  background: #cfe2ff;
+  color: #084298;
+}
+
+.status-badge.shipped {
+  background: #d1e7dd;
+  color: #0f5132;
+}
+
+.status-badge.delivered {
+  background: #d1e7dd;
+  color: #0f5132;
+}
+
+.status-badge.cancelled {
+  background: #f8d7da;
+  color: #842029;
+}
+
+.btn-edit:hover {
+  background: #764ba2;
 }
 
 .loading {
@@ -177,6 +238,26 @@
   padding: 60px 20px;
   font-size: 18px;
   color: #666;
+}
+
+/* Back Button */
+.btn-back {
+  display: inline-block;
+  padding: 10px 20px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.btn-back:hover {
+  background: #764ba2;
+  transform: translateX(-5px);
 }
 
 @media (max-width: 768px) {

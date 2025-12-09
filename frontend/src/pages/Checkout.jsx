@@ -58,11 +58,124 @@ export default function Checkout() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    // Real-time validation for phone - only digits, max 10
+    if (name === 'phone') {
+      const digitsOnly = value.replace(/\D/g, '').slice(0, 10);
+      setFormData(prev => ({
+        ...prev,
+        [name]: digitsOnly
+      }));
+      // Clear error when user starts typing
+      if (errors[name]) {
+        setErrors(prev => ({
+          ...prev,
+          [name]: ''
+        }));
+      }
+      return;
+    }
+
+    // Real-time validation for pincode - only digits, max 6
+    if (name === 'pincode') {
+      const digitsOnly = value.replace(/\D/g, '').slice(0, 6);
+      setFormData(prev => ({
+        ...prev,
+        [name]: digitsOnly
+      }));
+      if (errors[name]) {
+        setErrors(prev => ({
+          ...prev,
+          [name]: ''
+        }));
+      }
+      return;
+    }
+
+    // Real-time validation for name - only alphabets and spaces, max 30
+    if (name === 'name') {
+      const alphaOnly = value.replace(/[^a-zA-Z\s]/g, '').slice(0, 30);
+      setFormData(prev => ({
+        ...prev,
+        [name]: alphaOnly
+      }));
+      if (errors[name]) {
+        setErrors(prev => ({
+          ...prev,
+          [name]: ''
+        }));
+      }
+      return;
+    }
+
+    // Real-time validation for city - only alphabets and spaces, max 20
+    if (name === 'city') {
+      const alphaOnly = value.replace(/[^a-zA-Z\s]/g, '').slice(0, 20);
+      setFormData(prev => ({
+        ...prev,
+        [name]: alphaOnly
+      }));
+      if (errors[name]) {
+        setErrors(prev => ({
+          ...prev,
+          [name]: ''
+        }));
+      }
+      return;
+    }
+
+    // Real-time validation for state - only alphabets and spaces, max 20
+    if (name === 'state') {
+      const alphaOnly = value.replace(/[^a-zA-Z\s]/g, '').slice(0, 20);
+      setFormData(prev => ({
+        ...prev,
+        [name]: alphaOnly
+      }));
+      if (errors[name]) {
+        setErrors(prev => ({
+          ...prev,
+          [name]: ''
+        }));
+      }
+      return;
+    }
+
+    // Real-time validation for area - max 25 characters
+    if (name === 'area') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value.slice(0, 25)
+      }));
+      if (errors[name]) {
+        setErrors(prev => ({
+          ...prev,
+          [name]: ''
+        }));
+      }
+      return;
+    }
+
+    // Real-time validation for houseNumber - max 10 characters
+    if (name === 'houseNumber') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value.slice(0, 10)
+      }));
+      if (errors[name]) {
+        setErrors(prev => ({
+          ...prev,
+          [name]: ''
+        }));
+      }
+      return;
+    }
+
+    // For all other fields (like email)
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-
+    
     // Clear error for this field when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
@@ -70,76 +183,75 @@ export default function Checkout() {
         [name]: ''
       }));
     }
-
-    // Real-time validation
-    if (name === 'phone') {
-      // Allow only digits and limit to 10
-      const digitsOnly = value.replace(/\D/g, '').slice(0, 10);
-      if (digitsOnly !== value) {
-        setFormData(prev => ({
-          ...prev,
-          [name]: digitsOnly
-        }));
-      }
-    }
-
-    if (name === 'area') {
-      // Validate address length
-      if (value.length > 100) {
-        setFormData(prev => ({
-          ...prev,
-          [name]: value.slice(0, 100)
-        }));
-      }
-    }
   };
 
   // Validation function
   const validateForm = () => {
     const newErrors = {};
 
-    // Name validation
+    // Name validation - only characters, max 30 chars
     if (!formData.name.trim()) {
       newErrors.name = 'Full name is required';
+    } else if (!/^[a-zA-Z\s]*$/.test(formData.name)) {
+      newErrors.name = 'Name should contain only alphabets and spaces';
+    } else if (formData.name.trim().length > 30) {
+      newErrors.name = 'Name must not exceed 30 characters';
     }
 
-    // Phone validation - exactly 10 digits
+    // Email validation
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    // Phone validation - exactly 10 digits, no special characters
     const phoneDigitsOnly = formData.phone.replace(/\D/g, '');
     if (!formData.phone) {
       newErrors.phone = 'Phone number is required';
     } else if (phoneDigitsOnly.length !== 10) {
       newErrors.phone = 'Phone number must contain exactly 10 digits';
-    } else if (!/^\d+$/.test(phoneDigitsOnly)) {
+    } else if (!/^\d{10}$/.test(phoneDigitsOnly)) {
       newErrors.phone = 'Phone number should contain only digits';
     }
 
-    // Address validation - up to 100 characters
-    if (!formData.area.trim()) {
-      newErrors.area = 'Area/Street is required';
-    } else if (formData.area.trim().length > 100) {
-      newErrors.area = 'Address must not exceed 100 characters';
-    }
-
-    // City validation
-    if (!formData.city.trim()) {
-      newErrors.city = 'City is required';
-    }
-
-    // State validation
-    if (!formData.state.trim()) {
-      newErrors.state = 'State/Province is required';
-    }
-
-    // Pincode validation
-    if (!formData.pincode.trim()) {
-      newErrors.pincode = 'Postal code is required';
-    } else if (!/^\d{5,6}$/.test(formData.pincode.trim())) {
-      newErrors.pincode = 'Postal code should be 5-6 digits';
-    }
-
-    // House number validation
+    // House number validation - varchar(10)
     if (!formData.houseNumber.trim()) {
       newErrors.houseNumber = 'House/Flat number is required';
+    } else if (formData.houseNumber.trim().length > 10) {
+      newErrors.houseNumber = 'House/Flat number must not exceed 10 characters';
+    }
+
+    // Area validation - max 25 characters
+    if (!formData.area.trim()) {
+      newErrors.area = 'Area/Street is required';
+    } else if (formData.area.trim().length > 25) {
+      newErrors.area = 'Area must not exceed 25 characters';
+    }
+
+    // City validation - max 20 characters, only alphabets
+    if (!formData.city.trim()) {
+      newErrors.city = 'City is required';
+    } else if (!/^[a-zA-Z\s]*$/.test(formData.city)) {
+      newErrors.city = 'City should contain only alphabets and spaces';
+    } else if (formData.city.trim().length > 20) {
+      newErrors.city = 'City must not exceed 20 characters';
+    }
+
+    // State validation - max 20 characters, only alphabets
+    if (!formData.state.trim()) {
+      newErrors.state = 'State/Province is required';
+    } else if (!/^[a-zA-Z\s]*$/.test(formData.state)) {
+      newErrors.state = 'State should contain only alphabets and spaces';
+    } else if (formData.state.trim().length > 20) {
+      newErrors.state = 'State must not exceed 20 characters';
+    }
+
+    // Pincode validation - exactly 6 digits, no special characters
+    if (!formData.pincode.trim()) {
+      newErrors.pincode = 'Postal code is required';
+    } else if (!/^\d{6}$/.test(formData.pincode.trim())) {
+      newErrors.pincode = 'Postal code must contain exactly 6 digits';
     }
 
     setErrors(newErrors);
@@ -152,10 +264,33 @@ export default function Checkout() {
       return;
     }
 
+    // If UPI is selected, redirect to payment page
+    if (paymentMethod === 'upi') {
+      navigate('/payment', {
+        state: {
+          cartItems: isCartCheckout ? cartItems : null,
+          item: !isCartCheckout ? item : null,
+          totalPrice,
+          deliveryAddress: formData,
+          paymentMethod: 'upi'
+        }
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
       const user = JSON.parse(localStorage.getItem('user') || '{}');
+      
+      console.log('PLACING ORDER WITH:', {
+        token: token ? `${token.substring(0, 20)}...` : 'NO TOKEN',
+        user: user.email,
+        item: item ? item._id : 'CART',
+        itemCount: itemsToCheckout.length,
+        total: totalPrice,
+        address: formData
+      });
       
       let createdOrderId = '';
       
@@ -237,7 +372,12 @@ export default function Checkout() {
 
       setOrderPlaced(true);
     } catch (error) {
-      console.error('Order creation failed:', error);
+      console.error('Order creation failed:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        fullError: error
+      });
       const errorMsg = error.response?.data?.message || error.message || 'Failed to place order';
       alert(`Error: ${errorMsg}\n\nPlease make sure you are logged in and try again.`);
     } finally {
@@ -322,7 +462,7 @@ export default function Checkout() {
             <form className="address-form">
               <div className="form-row">
                 <div className="form-group">
-                  <label>Full Name *</label>
+                  <label>Full Name * (Max 30 characters)</label>
                   <input
                     type="text"
                     name="name"
@@ -330,12 +470,16 @@ export default function Checkout() {
                     onChange={handleInputChange}
                     placeholder="John Doe"
                     required
+                    maxLength="30"
                     className={errors.name ? 'input-error' : ''}
                   />
                   {errors.name && <span className="field-error">{errors.name}</span>}
+                  {formData.name && !errors.name && (
+                    <span className="field-success">{formData.name.length}/30 characters ✓</span>
+                  )}
                 </div>
                 <div className="form-group">
-                  <label>Phone Number *</label>
+                  <label>Phone Number * (10 digits)</label>
                   <input
                     type="tel"
                     name="phone"
@@ -355,51 +499,58 @@ export default function Checkout() {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Email</label>
+                  <label>Email *</label>
                   <input
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
                     placeholder="john@example.com"
+                    required
                     disabled
+                    className={errors.email ? 'input-error' : ''}
                   />
+                  {errors.email && <span className="field-error">{errors.email}</span>}
                 </div>
                 <div className="form-group">
-                  <label>House/Flat Number *</label>
+                  <label>House/Flat Number * (Max 10 characters)</label>
                   <input
                     type="text"
                     name="houseNumber"
                     value={formData.houseNumber}
                     onChange={handleInputChange}
-                    placeholder="123"
+                    placeholder="123, A-Wing"
                     required
+                    maxLength="10"
                     className={errors.houseNumber ? 'input-error' : ''}
                   />
                   {errors.houseNumber && <span className="field-error">{errors.houseNumber}</span>}
+                  {formData.houseNumber && !errors.houseNumber && (
+                    <span className="field-success">{formData.houseNumber.length}/10 ✓</span>
+                  )}
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Area/Street * (Max 100 characters)</label>
-                  <textarea
+                  <label>Area/Street * (Max 25 characters)</label>
+                  <input
+                    type="text"
                     name="area"
                     value={formData.area}
                     onChange={handleInputChange}
-                    placeholder="Enter detailed street address (e.g., Near XYZ Hospital, ABC Street, MG Road)"
+                    placeholder="MG Road, Bangalore"
                     required
-                    maxLength="100"
+                    maxLength="25"
                     className={errors.area ? 'input-error' : ''}
-                    rows="3"
                   />
                   {errors.area && <span className="field-error">{errors.area}</span>}
                   {formData.area && !errors.area && (
-                    <span className="field-success">{formData.area.length}/100 characters ✓</span>
+                    <span className="field-success">{formData.area.length}/25 characters ✓</span>
                   )}
                 </div>
                 <div className="form-group">
-                  <label>City *</label>
+                  <label>City * (Max 20 characters)</label>
                   <input
                     type="text"
                     name="city"
@@ -407,15 +558,19 @@ export default function Checkout() {
                     onChange={handleInputChange}
                     placeholder="Bangalore"
                     required
+                    maxLength="20"
                     className={errors.city ? 'input-error' : ''}
                   />
                   {errors.city && <span className="field-error">{errors.city}</span>}
+                  {formData.city && !errors.city && (
+                    <span className="field-success">{formData.city.length}/20 ✓</span>
+                  )}
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>State/Province *</label>
+                  <label>State/Province * (Max 20 characters)</label>
                   <input
                     type="text"
                     name="state"
@@ -423,12 +578,16 @@ export default function Checkout() {
                     onChange={handleInputChange}
                     placeholder="Karnataka"
                     required
+                    maxLength="20"
                     className={errors.state ? 'input-error' : ''}
                   />
                   {errors.state && <span className="field-error">{errors.state}</span>}
+                  {formData.state && !errors.state && (
+                    <span className="field-success">{formData.state.length}/20 ✓</span>
+                  )}
                 </div>
                 <div className="form-group">
-                  <label>Postal Code * (5-6 digits)</label>
+                  <label>Postal Code * (6 digits)</label>
                   <input
                     type="text"
                     name="pincode"
@@ -436,9 +595,13 @@ export default function Checkout() {
                     onChange={handleInputChange}
                     placeholder="560001"
                     required
+                    maxLength="6"
                     className={errors.pincode ? 'input-error' : ''}
                   />
                   {errors.pincode && <span className="field-error">{errors.pincode}</span>}
+                  {formData.pincode && !errors.pincode && (
+                    <span className="field-success">{formData.pincode.length}/6 ✓</span>
+                  )}
                 </div>
               </div>
 

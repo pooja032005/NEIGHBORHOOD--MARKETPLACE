@@ -10,6 +10,11 @@ exports.createOrder = async (req, res) => {
   try {
     const { itemId, quantity = 1, totalPrice, deliveryAddress, paymentMethod, saveAddress } = req.body;
     
+    console.log('CREATE ORDER REQUEST:', {
+      body: req.body,
+      user: req.user ? { _id: req.user._id, email: req.user.email } : null
+    });
+    
     // Check if user is authenticated
     if (!req.user || !req.user._id) {
       console.error('Order creation error: User not authenticated', req.user);
@@ -21,11 +26,19 @@ exports.createOrder = async (req, res) => {
     // Validate item exists
     const item = await Item.findById(itemId);
     if (!item) {
+      console.error('Item not found:', itemId);
       return res.status(404).json({ message: 'Item not found' });
+    }
+
+    // Validate required fields
+    if (!totalPrice || !deliveryAddress || !paymentMethod) {
+      console.error('Missing required fields:', { totalPrice, deliveryAddress, paymentMethod });
+      return res.status(400).json({ message: 'Missing required fields: totalPrice, deliveryAddress, paymentMethod' });
     }
 
     // Create order
     const order = await Order.create({
+      buyerId: userId,
       userId,
       itemId,
       quantity,
@@ -36,6 +49,8 @@ exports.createOrder = async (req, res) => {
       orderStatus: 'confirmed',
       estimatedDeliveryDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
     });
+
+    console.log('Order created successfully:', order._id);
 
     // Increment ProductAnalytics.purchases
     try {
@@ -65,7 +80,7 @@ exports.createOrder = async (req, res) => {
       order,
     });
   } catch (err) {
-    console.error('CREATE ORDER ERROR:', err);
+    console.error('CREATE ORDER ERROR:', err.message, err.stack);
     res.status(500).json({ message: 'Error creating order', error: err.message });
   }
 };
@@ -189,6 +204,7 @@ exports.createServiceOrder = async (req, res) => {
 
     // Create order for service
     const order = await Order.create({
+      buyerId: userId,
       userId,
       itemId: serviceId, // Store service ID as itemId for compatibility
       quantity: 1,

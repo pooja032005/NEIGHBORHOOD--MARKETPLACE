@@ -110,6 +110,84 @@ export default function ItemDetail() {
     }
   };
 
+  const handleOrderFormChange = (e) => {
+    const { name, value } = e.target;
+
+    // Real-time validation for phone - only digits, max 10
+    if (name === 'phone') {
+      const digitsOnly = value.replace(/\D/g, '').slice(0, 10);
+      setOrderForm(prev => ({
+        ...prev,
+        [name]: digitsOnly
+      }));
+      return;
+    }
+
+    // Real-time validation for pincode - only digits, max 6
+    if (name === 'pincode') {
+      const digitsOnly = value.replace(/\D/g, '').slice(0, 6);
+      setOrderForm(prev => ({
+        ...prev,
+        [name]: digitsOnly
+      }));
+      return;
+    }
+
+    // Real-time validation for name - only alphabets and spaces, max 30
+    if (name === 'name') {
+      const alphaOnly = value.replace(/[^a-zA-Z\s]/g, '').slice(0, 30);
+      setOrderForm(prev => ({
+        ...prev,
+        [name]: alphaOnly
+      }));
+      return;
+    }
+
+    // Real-time validation for city - only alphabets and spaces, max 20
+    if (name === 'city') {
+      const alphaOnly = value.replace(/[^a-zA-Z\s]/g, '').slice(0, 20);
+      setOrderForm(prev => ({
+        ...prev,
+        [name]: alphaOnly
+      }));
+      return;
+    }
+
+    // Real-time validation for state - only alphabets and spaces, max 20
+    if (name === 'state') {
+      const alphaOnly = value.replace(/[^a-zA-Z\s]/g, '').slice(0, 20);
+      setOrderForm(prev => ({
+        ...prev,
+        [name]: alphaOnly
+      }));
+      return;
+    }
+
+    // Real-time validation for area - max 25 characters
+    if (name === 'area') {
+      setOrderForm(prev => ({
+        ...prev,
+        [name]: value.slice(0, 25)
+      }));
+      return;
+    }
+
+    // Real-time validation for houseNumber - max 10 characters
+    if (name === 'houseNumber') {
+      setOrderForm(prev => ({
+        ...prev,
+        [name]: value.slice(0, 10)
+      }));
+      return;
+    }
+
+    // For all other fields
+    setOrderForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
     
@@ -122,6 +200,30 @@ export default function ItemDetail() {
       setOrderLoading(true);
       const totalPrice = item.price * orderForm.quantity;
 
+      // If UPI is selected, redirect to payment page
+      if (orderForm.paymentMethod === 'upi') {
+        navigate('/payment', {
+          state: {
+            itemId: id,
+            quantity: orderForm.quantity,
+            totalPrice,
+            deliveryAddress: {
+              name: orderForm.name,
+              phone: orderForm.phone,
+              email: orderForm.email,
+              houseNumber: orderForm.houseNumber,
+              area: orderForm.area,
+              city: orderForm.city,
+              state: orderForm.state,
+              pincode: orderForm.pincode
+            },
+            paymentMethod: orderForm.paymentMethod
+          }
+        });
+        return;
+      }
+
+      // For COD and Card, create order directly
       const response = await client.post("/orders/create", {
         itemId: id,
         quantity: orderForm.quantity,
@@ -310,91 +412,106 @@ export default function ItemDetail() {
 
               <h3>Delivery Address</h3>
               <div className="form-group">
-                <label>Name *</label>
+                <label>Name * (Max 30 characters)</label>
                 <input
                   type="text"
+                  name="name"
                   value={orderForm.name}
-                  onChange={(e) => setOrderForm({...orderForm, name: e.target.value})}
+                  onChange={handleOrderFormChange}
+                  placeholder="John Doe"
+                  maxLength="30"
                   required
                 />
+                <span className="char-count">{orderForm.name.length}/30</span>
               </div>
               <div className="form-group">
-                <label>Phone *</label>
+                <label>Phone * (10 digits)</label>
                 <input
                   type="tel"
+                  name="phone"
                   value={orderForm.phone}
-                  onChange={(e) => setOrderForm({...orderForm, phone: e.target.value})}
+                  onChange={handleOrderFormChange}
+                  placeholder="9876543210"
+                  maxLength="10"
                   required
                 />
+                <span className="char-count">{orderForm.phone.length}/10</span>
               </div>
               <div className="form-group">
-                <label>Email</label>
+                <label>Email *</label>
                 <input
                   type="email"
+                  name="email"
                   value={orderForm.email}
-                  onChange={(e) => setOrderForm({...orderForm, email: e.target.value})}
+                  onChange={handleOrderFormChange}
+                  disabled
+                  required
                 />
               </div>
               <div className="form-group">
-                <label>House Number</label>
+                <label>House Number * (Max 10 characters)</label>
                 <input
                   type="text"
+                  name="houseNumber"
                   value={orderForm.houseNumber}
-                  onChange={(e) => setOrderForm({...orderForm, houseNumber: e.target.value})}
+                  onChange={handleOrderFormChange}
+                  placeholder="123, A-Wing"
+                  maxLength="10"
+                  required
                 />
+                <span className="char-count">{orderForm.houseNumber.length}/10</span>
               </div>
               <div className="form-group">
-                <label>Area</label>
+                <label>Area * (Max 25 characters)</label>
                 <input
                   type="text"
+                  name="area"
                   value={orderForm.area}
-                  onChange={(e) => setOrderForm({...orderForm, area: e.target.value})}
+                  onChange={handleOrderFormChange}
+                  placeholder="MG Road, Bangalore"
+                  maxLength="25"
+                  required
                 />
+                <span className="char-count">{orderForm.area.length}/25</span>
               </div>
-                {isBuyer ? (
-                  <>
-                    <button
-                      className="btn-add-cart"
-                      onClick={handleAddToCart}
-                      disabled={cartLoading}
-                    >
-                      {cartLoading ? "Adding..." : "🛒 Add to Cart"}
-                    </button>
-                    <button 
-                      className="btn-buy-now" 
-                      onClick={() => setShowOrderModal(true)}
-                    >
-                      💳 Place Order
-                    </button>
-                  </>
-                ) : (
-                  <div style={{padding: '12px', color: '#a00'}}>Only buyers can purchase items. Please sign in with a buyer account.</div>
-                )}
               <div className="form-group">
-                <label>City *</label>
+                <label>City * (Max 20 characters)</label>
                 <input
                   type="text"
+                  name="city"
                   value={orderForm.city}
-                  onChange={(e) => setOrderForm({...orderForm, city: e.target.value})}
+                  onChange={handleOrderFormChange}
+                  placeholder="Bangalore"
+                  maxLength="20"
                   required
                 />
+                <span className="char-count">{orderForm.city.length}/20</span>
               </div>
               <div className="form-group">
-                <label>State</label>
+                <label>State * (Max 20 characters)</label>
                 <input
                   type="text"
+                  name="state"
                   value={orderForm.state}
-                  onChange={(e) => setOrderForm({...orderForm, state: e.target.value})}
-                />
-              </div>
-              <div className="form-group">
-                <label>Pincode *</label>
-                <input
-                  type="text"
-                  value={orderForm.pincode}
-                  onChange={(e) => setOrderForm({...orderForm, pincode: e.target.value})}
+                  onChange={handleOrderFormChange}
+                  placeholder="Karnataka"
+                  maxLength="20"
                   required
                 />
+                <span className="char-count">{orderForm.state.length}/20</span>
+              </div>
+              <div className="form-group">
+                <label>Postal Code * (6 digits)</label>
+                <input
+                  type="text"
+                  name="pincode"
+                  value={orderForm.pincode}
+                  onChange={handleOrderFormChange}
+                  placeholder="560001"
+                  maxLength="6"
+                  required
+                />
+                <span className="char-count">{orderForm.pincode.length}/6</span>
               </div>
 
               <h3>Payment Method</h3>

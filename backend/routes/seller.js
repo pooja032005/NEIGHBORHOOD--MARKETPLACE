@@ -145,27 +145,63 @@ router.get('/orders', sellerAuth, async (req, res) => {
  */
 router.get('/dashboard', sellerAuth, async (req, res) => {
   try {
-    const products = await Item.find({ owner: req.user._id }).lean();
+    const sellerId = req.user._id;
+    
+    // Get all products owned by this seller
+    const products = await Item.find({ owner: sellerId }).lean();
     const productIds = products.map(p => p._id);
 
+    // Get analytics for these products
     const analytics = await ProductAnalytics.find({ productId: { $in: productIds } }).lean();
 
     const totalViews = analytics.reduce((sum, a) => sum + a.views, 0);
     const totalWishlistAdds = analytics.reduce((sum, a) => sum + a.wishlistAdds, 0);
     const totalPurchases = analytics.reduce((sum, a) => sum + a.purchases, 0);
 
-    const orders = await Order.find({ 'items.sellerId': req.user._id }).lean();
+    // Get all orders where the item's owner is this seller
+    const allOrders = await Order.find({ itemId: { $in: productIds } })
+      .populate('buyerId', 'name email')
+      .populate('itemId', 'title price owner')
+      .lean();
+
+    // Filter to ensure the item owner is the current seller
+    const sellerOrders = allOrders.filter(order => {
+      return order.itemId && order.itemId.owner?.toString() === sellerId.toString();
+    });
+
+    // Format orders with buyer details
+    const formattedOrders = sellerOrders.map(order => ({
+      _id: order._id,
+      itemName: order.itemId?.title || 'N/A',
+      buyerName: order.buyerId?.name || order.deliveryAddress?.name || 'N/A',
+      buyerEmail: order.buyerId?.email || order.deliveryAddress?.email || 'N/A',
+      quantity: order.quantity || 1,
+      totalPrice: order.totalPrice || 0,
+      orderStatus: order.orderStatus || 'pending',
+      deliveryAddress: order.deliveryAddress,
+      createdAt: order.createdAt
+    }));
+
+    console.log('Seller dashboard query:', {
+      sellerId: sellerId.toString(),
+      productsCount: products.length,
+      productIds: productIds.map(p => p.toString()),
+      allOrdersCount: allOrders.length,
+      sellerOrdersCount: formattedOrders.length
+    });
 
     res.json({
       totalProducts: products.length,
       totalViews,
       totalWishlistAdds,
       totalPurchases,
-      totalOrders: orders.length,
+      totalOrders: formattedOrders.length,
       products,
       analytics,
+      orders: formattedOrders,
     });
   } catch (err) {
+    console.error('Seller dashboard error:', err);
     res.status(500).json({ error: err.message });
   }
 });

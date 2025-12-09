@@ -20,6 +20,36 @@ export default function Navbar() {
     }
   });
 
+  const [updateTrigger, setUpdateTrigger] = useState(0);
+
+  // Update user state whenever localStorage changes or on component mount
+  useEffect(() => {
+    const handleStorageChange = () => {
+      try {
+        const stored = localStorage.getItem("user");
+        setUser(stored ? JSON.parse(stored) : null);
+      } catch (e) {
+        setUser(null);
+      }
+    };
+
+    // Check immediately on mount
+    handleStorageChange();
+
+    // Listen for storage changes from other tabs/windows
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Listen for custom login/logout events
+    window.addEventListener('userLoggedIn', handleStorageChange);
+    window.addEventListener('userLoggedOut', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('userLoggedIn', handleStorageChange);
+      window.removeEventListener('userLoggedOut', handleStorageChange);
+    };
+  }, [updateTrigger]);
+
   // Load chat unread when user logs in
   useEffect(() => {
     if (user && localStorage.getItem('token')) {
@@ -46,11 +76,18 @@ export default function Navbar() {
   };
 
   const logout = () => {
+    // Update state immediately
+    setUser(null);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    setWishlistCount(0);
-    setUser(null);
-    navigate("/login");
+    
+    // Dispatch custom event to notify all listeners
+    window.dispatchEvent(new Event('userLoggedOut'));
+    
+    // Navigate after a tiny delay to ensure state update
+    setTimeout(() => {
+      navigate("/login");
+    }, 0);
   };
 
   return (

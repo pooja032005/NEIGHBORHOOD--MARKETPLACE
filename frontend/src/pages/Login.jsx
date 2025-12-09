@@ -63,6 +63,9 @@ export default function Login(){
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       
+      // Dispatch custom event to notify Navbar
+      window.dispatchEvent(new Event('userLoggedIn'));
+      
       // Redirect based on role
       if (data.user.role === 'admin') {
         navigate('/admin');

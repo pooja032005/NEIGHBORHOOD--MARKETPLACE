@@ -33,6 +33,8 @@ import Checkout from './pages/Checkout';
 import CartPage from './pages/CartPage';
 import Address from './pages/Address';
 import Payment from './pages/Payment';
+import PaymentPage from './pages/PaymentPage';
+import PaymentSuccess from './pages/PaymentSuccess';
 import OrderSuccess from './pages/OrderSuccess';
 import HomeV2 from './pages/HomeV2';
 import SellerDashboard from './pages/SellerDashboard';
@@ -73,7 +75,8 @@ function App() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/address" element={<Address />} />
-          <Route path="/payment" element={<Payment />} />
+          <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/order-success" element={<OrderSuccess />} />
 
           {/* Categories */}

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fix Authentication - Neighborhood Marketplace</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 500px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        .info {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            color: #856404;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #28a745;
+            color: #155724;
+        }
+        #status {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Fix Order Placement Error</h1>
+        
+        <div class="info">
+            <strong>⚠️ Problem:</strong> Your authentication token is outdated.<br>
+            <strong>✅ Solution:</strong> Click the button below to clear it and login again.
+        </div>
+
+        <button class="btn" onclick="fixAuth()">Clear Auth & Go to Login</button>
+        
+        <div id="status"></div>
+
+        <script>
+            function fixAuth() {
+                const status = document.getElementById('status');
+                
+                // Show current data
+                const oldToken = localStorage.getItem('token');
+                const oldUser = localStorage.getItem('user');
+                
+                console.log('Old token:', oldToken);
+                console.log('Old user:', oldUser);
+                
+                // Clear everything
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                status.innerHTML = '<div class="info success">✅ Authentication cleared!<br>Redirecting to login in 2 seconds...</div>';
+                
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 2000);
+            }
+        </script>
+    </div>
+</body>
+</html>

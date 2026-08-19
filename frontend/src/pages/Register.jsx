@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import client from '../api/api';
 import { useNavigate, Link } from 'react-router-dom';
-import { validateName, validateEmail, validateAddress, NAME_MAX_CHARS, EMAIL_MAX_CHARS, ADDRESS_MAX_CHARS } from '../utils/validation';
+import { validateName, validateEmail, validateAddress, NAME_MAX_CHARS, ADDRESS_MAX_CHARS } from '../utils/validation';
 import debounce from '../utils/debounce';
 import '../styles/auth.css';
 
@@ -31,10 +31,6 @@ export default function Register(){
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
-    if (value.length > EMAIL_MAX_CHARS) {
-      setLimitError(`Email cannot exceed ${EMAIL_MAX_CHARS} characters`);
-      return;
-    }
     setLimitError('');
     setEmail(value);
     if (liveValidateRef.current) liveValidateRef.current('email', value);
@@ -115,88 +111,75 @@ export default function Register(){
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2 className="auth-title">Create your account</h2>
-        <p className="auth-subtitle">Join our neighborhood marketplace</p>
-        
-        {error && <div className="error-message">⚠️ {error}</div>}
-        {limitError && <div className="error-message">⚠️ {limitError}</div>}
-        
-        <form onSubmit={submit}>
-          <div className="form-group">
-            <label>Full Name * <span className="char-limit">({name.length}/{NAME_MAX_CHARS})</span></label>
-            <input 
-              placeholder="Your full name" 
-              value={name} 
-              onChange={handleNameChange}
-              className={errors.name ? 'input-error' : ''}
-              required 
-            />
-            {errors.name && <div className="field-error-message">{errors.name}</div>}
-          </div>
+    <div className="register-page">
+      <div className="register-shell">
+        <section className="register-promo" aria-label="Neighbourhood Market benefits">
+          <div className="register-promo-content">
+            <span className="register-trusted">✓ Trusted by Thousands</span>
+            <h1>Join Your<br />Neighbourhood<br /><em>Marketplace</em></h1>
+            <p className="register-promo-copy">Create your account and start exploring amazing products, services and local deals around you.</p>
 
-          <div className="form-group">
-            <label>Email * <span className="char-limit">({email.length}/{EMAIL_MAX_CHARS})</span></label>
-            <input 
-              type="text"
-              placeholder="you@example.com" 
-              value={email} 
-              onChange={handleEmailChange}
-              className={errors.email ? 'input-error' : ''}
-              required 
-            />
-            {errors.email && <div className="field-error-message">{errors.email}</div>}
-          </div>
-
-          <div className="form-group">
-            <label>Password *</label>
-            <input 
-              type="password" 
-              placeholder="Choose a secure password" 
-              value={password} 
-              onChange={e=>setPassword(e.target.value)}
-              required 
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Location (City/Area) * <span className="char-limit">({location.length}/{ADDRESS_MAX_CHARS})</span></label>
-            <input 
-              placeholder="e.g. Bandra, Mumbai" 
-              value={location} 
-              onChange={handleLocationChange}
-              className={errors.location ? 'input-error' : ''}
-              required 
-            />
-            {errors.location && <div className="field-error-message">{errors.location}</div>}
-          </div>
-
-          <div className="form-group">
-            <label>Account Type</label>
-            <div style={{display: 'flex', gap: '12px', alignItems: 'center', marginTop: 8}}>
-              <label style={{display:'flex', alignItems:'center', gap:8, cursor:'pointer'}}>
-                <input type="radio" name="role" value="buyer" checked={role === 'buyer'} onChange={() => setRole('buyer')} />
-                <span style={{fontWeight:700}}>Buyer</span>
-                <small style={{marginLeft:6, color:'#666'}}>Browse & buy</small>
-              </label>
-              <label style={{display:'flex', alignItems:'center', gap:8, cursor:'pointer'}}>
-                <input type="radio" name="role" value="seller" checked={role === 'seller'} onChange={() => setRole('seller')} />
-                <span style={{fontWeight:700}}>Seller</span>
-                <small style={{marginLeft:6, color:'#666'}}>Post items & services</small>
-              </label>
+            <div className="register-benefits">
+              <div><span>✓</span><p><strong>Shop Local</strong><small>Support local sellers and communities</small></p></div>
+              <div><span>盾</span><p><strong>Secure &amp; Safe</strong><small>Your data is protected with top security</small></p></div>
+              <div><span>↗</span><p><strong>Fast &amp; Easy</strong><small>Quick setup and seamless experience</small></p></div>
             </div>
+
+            <div className="register-bonus"><span>🎁</span><p><strong>Welcome Bonus!</strong><small>Join today and get exclusive offers and updates delivered to you.</small></p><i>✦</i></div>
           </div>
+        </section>
 
-          <button className="btn-submit" type="submit" disabled={loading}>
-            {loading ? '⏳ Creating Account...' : '✓ Create Account'}
-          </button>
-        </form>
+        <section className="register-form-panel">
+          <div className="register-form-card">
+            <div className="register-form-icon">🛍</div>
+            <h2>Create Your Account</h2>
+            <p className="register-form-subtitle">Join our <strong>neighbourhood marketplace</strong></p>
 
-        <p className="auth-footer">
-          Already have an account? <Link to="/login">Sign in</Link>
-        </p>
+            {error && <div className="error-message" role="alert">⚠️ {error}</div>}
+            {limitError && <div className="error-message" role="alert">⚠️ {limitError}</div>}
+
+            <form onSubmit={submit}>
+              <div className="register-field form-group">
+                <label htmlFor="register-name">Full Name * <span>({name.length}/{NAME_MAX_CHARS})</span></label>
+                <div className="register-input-wrap"><span>👤</span><input id="register-name" placeholder="Your full name" value={name} onChange={handleNameChange} className={errors.name ? 'input-error' : ''} required /></div>
+                {errors.name && <div className="field-error-message">{errors.name}</div>}
+              </div>
+
+              <div className="register-field form-group">
+                <label htmlFor="register-email">Email *</label>
+                <div className="register-input-wrap"><span>✉</span><input id="register-email" type="email" placeholder="you@example.com" value={email} onChange={handleEmailChange} className={errors.email ? 'input-error' : ''} required /></div>
+                {errors.email && <div className="field-error-message">{errors.email}</div>}
+              </div>
+
+              <div className="register-field form-group">
+                <label htmlFor="register-password">Password *</label>
+                <div className="register-input-wrap"><span>🔒</span><input id="register-password" type="password" placeholder="Create a strong password" value={password} onChange={e => setPassword(e.target.value)} required /></div>
+              </div>
+
+              <div className="register-field form-group">
+                <label htmlFor="register-location">Location (City/Area) * <span>({location.length}/{ADDRESS_MAX_CHARS})</span></label>
+                <div className="register-input-wrap"><span>📍</span><input id="register-location" placeholder="e.g. Bandra, Mumbai" value={location} onChange={handleLocationChange} className={errors.location ? 'input-error' : ''} required /></div>
+                {errors.location && <div className="field-error-message">{errors.location}</div>}
+              </div>
+
+              <fieldset className="register-roles">
+                <legend>Account Type</legend>
+                <div className="register-role-grid">
+                  <label className={role === 'buyer' ? 'active' : ''}><input type="radio" name="role" value="buyer" checked={role === 'buyer'} onChange={() => setRole('buyer')} /><span>🛒</span><strong>Buyer</strong><small>Browse &amp; Buy</small></label>
+                  <label className={role === 'seller' ? 'active' : ''}><input type="radio" name="role" value="seller" checked={role === 'seller'} onChange={() => setRole('seller')} /><span>🏪</span><strong>Seller</strong><small>Sell Products</small></label>
+                </div>
+              </fieldset>
+
+              <button className="register-submit" type="submit" disabled={loading}>{loading ? '⏳ Creating Account...' : '♙  Create Account'}</button>
+            </form>
+            <p className="auth-footer">Already have an account? <Link to="/login">Sign in</Link></p>
+          </div>
+        </section>
       </div>
+
+      <section className="register-trust-bar" aria-label="Marketplace promises">
+        {[['🛡', '100% Secure', 'Your data is safe with us'], ['🚚', 'Fast Delivery', 'Quick & reliable delivery'], ['↻', 'Easy Returns', 'Hassle-free returns'], ['🎧', '24/7 Support', "We're here to help"]].map(([icon, title, copy]) => <div key={title}><span>{icon}</span><p><strong>{title}</strong><small>{copy}</small></p></div>)}
+      </section>
     </div>
   );
 }

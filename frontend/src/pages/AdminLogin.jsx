@@ -6,6 +6,7 @@ import '../styles/auth.css';
 export default function AdminLogin(){
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showAccessDeniedModal, setShowAccessDeniedModal] = useState(false);
@@ -50,7 +51,31 @@ export default function AdminLogin(){
   };
 
   return (
-    <div className="auth-container">
+    <div className="auth-container admin-login-page">
+      <span className="admin-login-dots admin-login-dots-left" aria-hidden="true" />
+      <span className="admin-login-dots admin-login-dots-right" aria-hidden="true" />
+      <span className="admin-login-curves admin-login-curves-left" aria-hidden="true" />
+      <span className="admin-login-curves admin-login-curves-right" aria-hidden="true" />
+      <span className="admin-login-glow" aria-hidden="true" />
+      <div className="admin-side-illustration admin-security-illustration" aria-hidden="true">
+        <div className="security-shield"><span>♙</span></div>
+        <div className="security-check">✓</div>
+        <div className="security-sparkle security-sparkle-one">✦</div>
+        <div className="security-sparkle security-sparkle-two">✦</div>
+        <div className="security-leaves">❧</div>
+      </div>
+      <div className="admin-side-illustration admin-dashboard-illustration" aria-hidden="true">
+        <div className="dashboard-window"><span className="dashboard-window-bar">•••</span><span className="dashboard-avatar">●</span><span className="dashboard-line dashboard-line-one" /><span className="dashboard-line dashboard-line-two" /><span className="dashboard-line dashboard-line-three" /></div>
+        <div className="dashboard-chart"><i /><i /><i /><i /></div>
+        <div className="dashboard-leaf">❧</div>
+      </div>
+      <div className="admin-login-landscape" aria-hidden="true">
+        <span className="admin-login-hill admin-login-hill-back" />
+        <span className="admin-login-hill admin-login-hill-front" />
+        <span className="admin-login-city">▥　▥　▥　▥　▥</span>
+        <span className="admin-login-trees">♧　♧　♧　♧　♧　♧　♧</span>
+        <span className="admin-login-lamps">♜　　　　　　　　　　　　　　　　♜</span>
+      </div>
       {/* Access Denied Modal */}
       {showAccessDeniedModal && (
         <div className="modal-overlay" onClick={handleAccessDeniedClose}>
@@ -88,33 +113,51 @@ export default function AdminLogin(){
         </div>
       )}
 
-      <div className="auth-card">
-        <h2 className="auth-title">Admin Sign In</h2>
+      <div className="auth-card admin-login-card">
+        <div className="admin-login-icon" aria-hidden="true"><span>♜</span><b>▣</b></div>
+        <h1 className="auth-title">Admin Sign In</h1>
         <p className="auth-subtitle">Only administrator accounts may sign in here</p>
 
         {error && <div className="error-message">⚠️ {error}</div>}
 
         <form onSubmit={submit}>
-          <div className="form-group">
-            <label>Email</label>
-            <input
+          <div className="form-group admin-login-field">
+            <label htmlFor="admin-email">Email</label>
+            <div className="admin-login-input-wrap">
+              <span aria-hidden="true">✉</span>
+              <input
+                id="admin-email"
               type="email"
               placeholder="admin@example.com"
               value={email}
               onChange={e=>setEmail(e.target.value)}
+              autoComplete="email"
               required
-            />
+              />
+            </div>
           </div>
 
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              type="password"
+          <div className="form-group admin-login-field">
+            <label htmlFor="admin-password">Password</label>
+            <div className="admin-login-input-wrap">
+              <span aria-hidden="true">🔒</span>
+              <input
+              id="admin-password"
+              type={showPassword ? 'text' : 'password'}
               placeholder="••••••••"
               value={password}
               onChange={e=>setPassword(e.target.value)}
+              autoComplete="current-password"
               required
-            />
+              />
+              <button
+                className="admin-password-toggle"
+                type="button"
+                onClick={() => setShowPassword(previous => !previous)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-pressed={showPassword}
+              >{showPassword ? '🙈' : '◉'}</button>
+            </div>
           </div>
 
           <button className="btn-submit" type="submit" disabled={loading}>

@@ -15,9 +15,6 @@ app.use(express.json());
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
-// 👉 CONNECT TO DATABASE
-connectDB();
-
 // 👉 YOUR ROUTES
 const itemRoutes = require("./routes/item");
 const serviceRoutes = require("./routes/services");
@@ -84,6 +81,13 @@ io.on("connection", (socket) => {
 
 // 👉 START SERVER
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`Backend running on port ${PORT}`);
-});
+connectDB()
+  .then(() => {
+    server.listen(PORT, () => {
+      console.log(`Backend running on port ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error(`Database connection failed: ${error.message}`);
+    process.exitCode = 1;
+  });

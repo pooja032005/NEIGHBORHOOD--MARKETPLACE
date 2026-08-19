@@ -4,12 +4,14 @@ import { CartContext } from "../context/CartContext";
 import {useState, useContext, useEffect } from "react";
 import client from "../api/api";
 import ThemeToggle from './ThemeToggle';
+import './Navbar.css';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const { cart, wishlist } = useContext(CartContext);
   const [showMiniCart, setShowMiniCart] = useState(false);
   const [chatUnread, setChatUnread] = useState(0);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const [user, setUser] = useState(() => {
     try {
@@ -90,13 +92,38 @@ export default function Navbar() {
     }, 0);
   };
 
+  const submitSearch = (event) => {
+    event.preventDefault();
+    navigate(searchTerm.trim() ? `/items?q=${encodeURIComponent(searchTerm.trim())}` : '/items');
+  };
+
+  const becomeSeller = () => {
+    if (!user) navigate('/register');
+    else if (user.role === 'buyer') navigate('/profile/edit');
+    else navigate('/seller/dashboard');
+  };
+
   return (
-    <nav style={styles.nav}>
+    <nav style={styles.nav} className="market-navbar">
       <Link to="/" style={styles.logo}>
-        Neighbourhood<span style={{ color: "#ff7b54" }}>Market</span>
+        🛍️ Neighbourhood<span style={{ color: "#f28c28" }}>Market</span>
       </Link>
 
+      <form className="market-navbar-search" onSubmit={submitSearch}>
+        <select aria-label="Choose category" defaultValue="all" onChange={(event) => event.target.value !== 'all' && navigate(`/category/${encodeURIComponent(event.target.value)}`)}>
+          <option value="all">All Categories</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Fashion">Fashion</option>
+          <option value="Books">Books</option>
+          <option value="Sports">Sports</option>
+        </select>
+        <input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Search products, services and more..." aria-label="Search marketplace" />
+        <button type="submit" aria-label="Search">⌕</button>
+      </form>
+
       <div style={styles.links}>
+        <button type="button" className="market-navbar-action" onClick={becomeSeller}>Become a Seller</button>
+        <Link to="/chats" style={styles.link}>Help &amp; Support</Link>
         <Link to="/items" style={styles.link}>Items</Link>
         <Link to="/services" style={styles.link}>Services</Link>
         <div style={{ position: "relative" }}
@@ -178,7 +205,7 @@ const styles = {
     position: "sticky",
     top: 0,
     zIndex: 1000,
-    padding: "18px 40px",
+    padding: "12px 24px",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
@@ -188,7 +215,7 @@ const styles = {
   },
 
   logo: {
-    fontSize: "28px",
+    fontSize: "21px",
     fontWeight: "700",
     textDecoration: "none",
     color: "#222",
@@ -198,19 +225,19 @@ const styles = {
   links: {
     display: "flex",
     alignItems: "center",
-    gap: "28px",
+    gap: "18px",
   },
 
   link: {
     textDecoration: "none",
-    fontSize: "18px",
+    fontSize: "13px",
     color: "#333",
     fontWeight: "500",
     transition: "0.25s ease",
   },
 
   registerBtn: {
-    padding: "8px 18px",
+    padding: "8px 14px",
     background: "linear-gradient(135deg, #ff7b54, #ff9f68)",
     color: "#fff",
     borderRadius: "8px",

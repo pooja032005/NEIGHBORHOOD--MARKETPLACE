@@ -1,28 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 import client from '../api/api';
 import { useNavigate, Link } from 'react-router-dom';
-import { validateEmail, EMAIL_MAX_CHARS } from '../utils/validation';
+import { validateEmail } from '../utils/validation';
 import debounce from '../utils/debounce';
-import '../styles/auth.css';
+import './Login.css';
 
 export default function Login(){
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState('buyer');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [errors, setErrors] = useState({});
-  const [limitError, setLimitError] = useState('');
   const navigate = useNavigate();
   const liveValidateRef = useRef();
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
-    if (value.length > EMAIL_MAX_CHARS) {
-      setLimitError(`Email cannot exceed ${EMAIL_MAX_CHARS} characters`);
-      return;
-    }
-    setLimitError('');
     setEmail(value);
     if (liveValidateRef.current) liveValidateRef.current('email', value);
   };
@@ -37,14 +32,6 @@ export default function Login(){
       setErrors(prev => ({ ...prev, ...nextErrors }));
     }, 400);
   }, []);
-
-  // Auto-close limit error after 3 seconds
-  useEffect(() => {
-    if (limitError) {
-      const timer = setTimeout(() => setLimitError(''), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [limitError]);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -80,70 +67,90 @@ export default function Login(){
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2 className="auth-title">Welcome Back</h2>
-        <p className="auth-subtitle">Sign in to your account</p>
-        
-        {error && <div className="error-message">⚠️ {error}</div>}
-        {limitError && <div className="error-message">⚠️ {limitError}</div>}
+    <div className="login-page">
+      <span className="login-dots login-dots-top" aria-hidden="true" />
+      <span className="login-dots login-dots-bottom" aria-hidden="true" />
+      <span className="login-leaf" aria-hidden="true">⌁</span>
+
+      <section className="login-card" aria-labelledby="login-title">
+        <div className="login-icon" aria-hidden="true">🛍</div>
+        <h1 id="login-title" className="login-title">Welcome Back</h1>
+        <p className="login-subtitle">Sign in to your account</p>
+
+        {error && <div className="login-alert" role="alert">⚠️ {error}</div>}
 
         <form onSubmit={submit}>
-          <div className="form-group">
-            <label>Email * <span className="char-limit">({email.length}/{EMAIL_MAX_CHARS})</span></label>
-            <input 
-              type="text"
-              placeholder="you@example.com" 
-              value={email} 
-              onChange={handleEmailChange}
-              className={errors.email ? 'input-error' : ''}
-              required 
-            />
-            {errors.email && <div className="field-error-message">{errors.email}</div>}
-          </div>
-
-          <div className="form-group">
-            <label>Password *</label>
-            <input 
-              type="password" 
-              placeholder="••••••••" 
-              value={password} 
-              onChange={e=>setPassword(e.target.value)}
-              required 
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Login As</label>
-            <div className="role-columns" style={{display: 'flex', gap: '12px'}}>
-              <div className={`role-column ${role === 'buyer' ? 'active' : ''}`} onClick={() => setRole('buyer')} style={{flex:1, padding: '12px', borderRadius: '8px', border: role === 'buyer' ? '2px solid #4a90e2' : '1px solid #ddd', cursor: 'pointer'}}>
-                <div style={{fontSize: '22px'}}>👤</div>
-                <div style={{fontWeight:600}}>Buyer</div>
-                <div style={{fontSize:12, color:'#666'}}>Browse marketplace</div>
-              </div>
-              <div className={`role-column ${role === 'seller' ? 'active' : ''}`} onClick={() => setRole('seller')} style={{flex:1, padding: '12px', borderRadius: '8px', border: role === 'seller' ? '2px solid #4a90e2' : '1px solid #ddd', cursor: 'pointer'}}>
-                <div style={{fontSize: '22px'}}>🏪</div>
-                <div style={{fontWeight:600}}>Seller</div>
-                <div style={{fontSize:12, color:'#666'}}>Post & manage listings</div>
-              </div>
+          <div className="login-form-group">
+            <label className="login-label" htmlFor="login-email">Email *</label>
+            <div className="login-input-wrap">
+              <span className="login-input-icon" aria-hidden="true">✉</span>
+              <input
+                id="login-email"
+                className={`login-input${errors.email ? ' input-error' : ''}`}
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={handleEmailChange}
+                autoComplete="email"
+                required
+              />
             </div>
-            {/* Admin login is a separate page: access via /admin-login (not linked here) */}
+            {errors.email && <div className="login-field-error" role="alert">{errors.email}</div>}
           </div>
 
-          <button className="btn-submit" type="submit" disabled={loading}>
-            {loading ? '⏳ Signing In...' : '✓ Sign In'}
+          <div className="login-form-group">
+            <label className="login-label" htmlFor="login-password">Password *</label>
+            <div className="login-input-wrap">
+              <span className="login-input-icon" aria-hidden="true">🔒</span>
+              <input
+                id="login-password"
+                className="login-input"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Enter your password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                autoComplete="current-password"
+                required
+              />
+              <button
+                className="login-password-toggle"
+                type="button"
+                onClick={() => setShowPassword(prev => !prev)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-pressed={showPassword}
+              >
+                {showPassword ? '🙈' : '👁'}
+              </button>
+            </div>
+          </div>
+
+          <div className="login-form-group">
+            <span className="login-label login-role-label">Login As</span>
+            <div className="login-role-grid" role="radiogroup" aria-label="Login as">
+              <label className={`login-role-card${role === 'buyer' ? ' active' : ''}`}>
+                <input type="radio" name="role" value="buyer" checked={role === 'buyer'} onChange={() => setRole('buyer')} />
+                <span className="login-role-icon" aria-hidden="true">👤</span>
+                <span className="login-role-name">Buyer</span>
+                <span className="login-role-description">Browse marketplace</span>
+              </label>
+              <label className={`login-role-card${role === 'seller' ? ' active' : ''}`}>
+                <input type="radio" name="role" value="seller" checked={role === 'seller'} onChange={() => setRole('seller')} />
+                <span className="login-role-icon" aria-hidden="true">🏪</span>
+                <span className="login-role-name">Seller</span>
+                <span className="login-role-description">Post &amp; manage listings</span>
+              </label>
+            </div>
+          </div>
+
+          <button className="login-submit" type="submit" disabled={loading}>
+            {loading ? 'Signing In...' : '✓ Sign In'}
           </button>
         </form>
 
-        <p className="auth-footer">
-          Don't have an account? <Link to="/register">Create one</Link>
-        </p>
-
-        {/* Admin Login Link */}
-        <p style={{textAlign: 'center', marginTop: '20px', paddingTop: '15px', borderTop: '1px solid #eee', fontSize: '14px', color: '#666'}}>
-          Are you an admin? <Link to="/admin-login" style={{color: '#667eea', fontWeight: '700', textDecoration: 'none'}}>Sign in here</Link>
-        </p>
-      </div>
+        <p className="login-register">Don't have an account? <Link to="/register">Create one</Link></p>
+        <div className="login-divider" />
+        <p className="login-admin">Are you an admin? <Link to="/admin-login">Sign in here</Link></p>
+      </section>
     </div>
   );
 }

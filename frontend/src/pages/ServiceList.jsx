@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import client from "../api/api";
-import "../styles/itemlist.css";
+import "./ServiceList.css";
 
 export default function ServiceList() {
   const navigate = useNavigate();
@@ -10,6 +10,7 @@ export default function ServiceList() {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filteredCount, setFilteredCount] = useState(0);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Filter states
   const [search, setSearch] = useState(searchParams.get("q") || "");
@@ -61,134 +62,166 @@ export default function ServiceList() {
   };
 
   return (
-    <div className="itemlist-container">
-      <div className="itemlist-wrapper">
-        {/* Left Filter Panel */}
-        <aside className="filter-panel-items">
-          <h3 className="filter-title">🔍 Filters</h3>
+    <div className="services-page">
+      <div className="services-layout">
+        <button
+          type="button"
+          className="services-filter-toggle"
+          onClick={() => setFiltersOpen(prev => !prev)}
+          aria-expanded={filtersOpen}
+          aria-controls="services-filters"
+        >
+          {filtersOpen ? "Hide filters" : "Show filters"}
+        </button>
+
+        <aside id="services-filters" className={`services-filter-card${filtersOpen ? " open" : ""}`}>
+          <h2 className="services-filter-title">🔍 Filters</h2>
 
           <form onSubmit={handleApplyFilters}>
-            {/* Search */}
-            <div className="filter-group">
-              <label htmlFor="search">Search Service</label>
+            <div className="services-filter-group">
+              <label className="services-filter-label" htmlFor="service-search">Search Service</label>
+              <div className="services-filter-input-wrap">
               <input
-                id="search"
+                id="service-search"
                 type="text"
                 placeholder="e.g., Plumbing, Cleaning..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="filter-input"
+                className="services-filter-input"
               />
+                <span className="services-filter-icon" aria-hidden="true">⌕</span>
+              </div>
             </div>
 
-            {/* Location */}
-            <div className="filter-group">
-              <label htmlFor="location">Location</label>
+            <div className="services-filter-group">
+              <label className="services-filter-label" htmlFor="service-location">Location</label>
+              <div className="services-filter-input-wrap">
               <input
-                id="location"
+                id="service-location"
                 type="text"
                 placeholder="e.g., Delhi, Mumbai..."
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="filter-input"
+                className="services-filter-input"
               />
+                <span className="services-filter-icon" aria-hidden="true">⌖</span>
+              </div>
             </div>
 
-            {/* Price Range */}
-            <div className="filter-group">
-              <label htmlFor="priceRange">
-                Max Price: ₹{priceRange}
-              </label>
+            <div className="services-filter-group">
+              <label className="services-filter-label" htmlFor="service-price-range">Max Price</label>
+              <p className="services-price-value">₹{priceRange}{Number(priceRange) >= 50000 ? "+" : ""}</p>
               <input
-                id="priceRange"
+                id="service-price-range"
                 type="range"
                 min="500"
                 max="50000"
                 step="500"
                 value={priceRange}
                 onChange={(e) => setPriceRange(Number(e.target.value))}
-                className="price-slider"
+                className="services-price-slider"
               />
+              <div className="services-price-scale"><span>₹500</span><span>₹50000+</span></div>
             </div>
 
-            {/* Buttons */}
-            <div className="filter-buttons">
-              <button type="submit" className="btn-apply">
-                ✓ Apply Filters
+            <div className="services-filter-actions">
+              <button type="submit" className="services-primary-button">
+                ▾ Apply Filters
               </button>
               <button
                 type="button"
-                className="btn-reset"
+                className="services-secondary-button"
                 onClick={handleResetFilters}
               >
-                ↺ Reset
+                ↻ Reset
               </button>
             </div>
           </form>
         </aside>
 
-        {/* Services Display */}
-        <main className="items-container">
-          <div className="items-header">
-            <h2>Available Services</h2>
-            <span className="items-count">
+        <main className="services-content">
+          <header className="services-header">
+            <h1 className="services-header-title">Available Services</h1>
+            <div className="services-header-actions">
+              <span className="services-count">
               Showing {filteredCount} service{filteredCount !== 1 ? "s" : ""}
-            </span>
-            {/* Post Service button (visible when logged in) */}
+              </span>
             {localStorage.getItem("token") ? (
-              <Link to="/services/create" className="btn-post-item">
+              <Link to="/services/create" className="services-post-button">
                 + Post Service
               </Link>
             ) : (
-              <Link to="/login" className="btn-post-item btn-need-login">
+              <Link to="/login" className="services-post-button">
                 Sign in to Post
               </Link>
             )}
-          </div>
+            </div>
+          </header>
 
           {loading ? (
-            <div className="loading-spinner">Loading services...</div>
+            <div className="services-results services-loading">Loading services...</div>
           ) : services.length === 0 ? (
-            <div className="no-items">
-              <p>📭 No services found matching your criteria</p>
-              <p className="no-items-hint">Try adjusting your search criteria</p>
-              <button onClick={handleResetFilters} className="btn-reset-large">Clear all filters</button>
+            <div className="services-results">
+              <div className="services-empty-state">
+                <div className="services-empty-illustration" role="img" aria-label="Toolbox with local service tools">
+                  <span className="services-spark services-spark-one">✦</span>
+                  <span className="services-spark services-spark-two">✦</span>
+                  <span className="services-tool services-tool-one" />
+                  <span className="services-tool services-tool-two" />
+                  <span className="services-tool services-tool-three" />
+                  <span className="services-toolbox" />
+                </div>
+                <h2 className="services-empty-title">No services found matching your criteria</h2>
+                <p className="services-empty-description">Try adjusting your search criteria</p>
+                <button onClick={handleResetFilters} className="services-clear-button">↻ Clear all filters</button>
+              </div>
+              <div className="services-landscape" aria-hidden="true">
+                <span className="services-city" />
+                <span className="services-tree services-tree-one" />
+                <span className="services-tree services-tree-two" />
+                <span className="services-tree services-tree-three" />
+                <span className="services-lamp services-lamp-one" />
+                <span className="services-lamp services-lamp-two" />
+              </div>
             </div>
           ) : (
-            <div className="items-grid">
+            <div className="services-grid">
               {services.map((service) => (
-                <div key={service._id} className="service-card">
-                  <div className="service-image-wrapper">
-                    <img
-                      src={service.imageUrl || "https://via.placeholder.com/300x200?text=Service"}
-                      alt={service.title}
-                      className="service-image"
-                    />
-                    <span className="service-category">{service.category}</span>
+                <article key={service._id} className="services-card">
+                  <div className="services-card-image-wrap">
+                    {service.imageUrl ? (
+                      <img src={service.imageUrl} alt={service.title} className="services-card-image" />
+                    ) : (
+                      <div className="services-empty-illustration" role="img" aria-label="Service tools illustration">
+                        <span className="services-tool services-tool-one" />
+                        <span className="services-tool services-tool-two" />
+                        <span className="services-toolbox" />
+                      </div>
+                    )}
+                    <span className="services-card-category">{service.category}</span>
                   </div>
 
-                  <div className="service-content">
-                    <h3 className="service-title">{service.title}</h3>
+                  <div className="services-card-content">
+                    <h2 className="services-card-title">{service.title}</h2>
 
-                    <div className="provider-info">
-                      <div className="provider-avatar">
+                    <div className="services-provider">
+                      <div className="services-provider-avatar">
                         {service.provider?.name?.charAt(0).toUpperCase() || "P"}
                       </div>
                       <div>
-                        <p className="provider-name">{service.provider?.name || "Provider"}</p>
-                        <p className="provider-location">📍 {service.provider?.location || "Location"}</p>
+                        <p className="services-provider-name">{service.provider?.name || "Provider"}</p>
+                        <p className="services-provider-location">📍 {service.provider?.location || "Location"}</p>
                       </div>
                     </div>
 
-                    <p className="service-description">{service.description?.substring(0, 80)}...</p>
+                    <p className="services-card-description">{service.description?.substring(0, 80)}...</p>
 
-                    <div className="service-price-section">
-                      <p className="service-price">₹ {service.price}<span className="price-type"> {service.priceType || "/hour"}</span></p>
+                    <div className="services-card-footer">
+                      <p className="services-card-price">₹ {service.price}<span> {service.priceType || "/hour"}</span></p>
+                      <button className="services-view-button" onClick={() => navigate(`/services/${service._id}`)}>View Service →</button>
                     </div>
-
-                    <button className="btn-view-service" onClick={() => navigate(`/services/${service._id}`)}>View Service →</button>
                   </div>
-                </div>
+                </article>
               ))}
             </div>
           )}

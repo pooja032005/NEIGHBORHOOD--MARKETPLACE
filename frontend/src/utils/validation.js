@@ -1,10 +1,9 @@
 // Shared validation helpers for frontend forms (character limits + phone)
 export const TITLE_MAX_CHARS = 70;
 export const DESCRIPTION_MAX_CHARS = 3000;
-export const NAME_MAX_CHARS = 50;
-export const EMAIL_MAX_CHARS = 100;
+export const NAME_MAX_CHARS = 20;
 export const MOBILE_MAX_CHARS = 15;
-export const ADDRESS_MAX_CHARS = 200;
+export const ADDRESS_MAX_CHARS = 100;
 
 export function validateTitle(title, maxChars = TITLE_MAX_CHARS) {
   if (!title || title.trim().length === 0) {
@@ -100,10 +99,6 @@ export function validateEmail(email) {
   if (!email || email.trim().length === 0) {
     return { valid: false, message: 'Email is required.' };
   }
-  const length = email.trim().length;
-  if (length > EMAIL_MAX_CHARS) {
-    return { valid: false, message: `Email must be at most ${EMAIL_MAX_CHARS} characters (currently ${length}).` };
-  }
   // Basic email validation regex
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email.trim())) {
@@ -145,7 +140,6 @@ export default {
   TITLE_MAX_CHARS, 
   DESCRIPTION_MAX_CHARS,
   NAME_MAX_CHARS,
-  EMAIL_MAX_CHARS,
   MOBILE_MAX_CHARS,
   ADDRESS_MAX_CHARS
 };
